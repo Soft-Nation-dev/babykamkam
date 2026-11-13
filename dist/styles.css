@@ -41,6 +41,10 @@ body.intro-active {
   overflow: hidden;
 }
 
+html.intro-active {
+  overflow: hidden;
+}
+
 img,
 svg {
   display: block;
@@ -127,188 +131,66 @@ button {
   to { opacity: 0.9; transform: scale(1.8); }
 }
 
-.intro {
+.spline-intro {
   position: fixed;
   z-index: 500;
   inset: 0;
-  display: grid;
-  place-items: center;
-  align-content: center;
-  gap: clamp(1rem, 3vh, 2rem);
-  min-height: 100svh;
-  padding: 1.5rem;
+  width: 100vw;
+  height: 100dvh;
   overflow: hidden;
-  text-align: center;
-  background:
-    radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.95), transparent 25rem),
-    linear-gradient(145deg, #fffaf5 0%, #f4dfe2 56%, #dfe8dc 100%);
-  transition: opacity 650ms ease, visibility 650ms ease;
+  background: #100509;
+  transition: opacity 900ms ease, visibility 900ms ease;
 }
 
-.intro::before,
-.intro::after {
-  content: "";
-  position: absolute;
-  width: 22rem;
-  height: 8rem;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.5);
-  filter: blur(18px);
+.spline-intro__viewer {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #100509;
 }
 
-.intro::before { top: 8%; left: -8rem; }
-.intro::after { right: -7rem; bottom: 8%; }
-
-.intro.is-complete {
+.spline-intro.is-complete {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
 }
 
-.intro__copy {
-  position: relative;
-  z-index: 4;
-}
-
-.eyebrow {
-  margin: 0 0 0.55rem;
-  color: var(--rose-deep);
-  font-size: 0.73rem;
-  font-weight: 700;
-  letter-spacing: 0.21em;
-  text-transform: uppercase;
-}
-
-.intro__copy h1 {
-  margin: 0;
-  font-family: var(--serif);
-  font-size: clamp(2.6rem, 11vw, 5.8rem);
-  font-weight: 400;
-  line-height: 0.95;
-  letter-spacing: -0.045em;
-}
-
-.intro__copy p:last-child {
-  margin: 0.7rem 0 0;
-  color: var(--ink-soft);
-  font-family: var(--serif);
-  font-style: italic;
-}
-
-.envelope-stage {
-  position: relative;
-  width: min(78vw, 330px);
-  height: min(50vw, 210px);
-  perspective: 900px;
-  filter: drop-shadow(0 24px 28px rgba(75, 56, 50, 0.18));
-}
-
-.envelope-shadow {
+.spline-intro__skip {
   position: absolute;
-  right: 8%;
-  bottom: -14%;
-  left: 8%;
-  height: 22%;
-  border-radius: 50%;
-  background: rgba(75, 56, 50, 0.22);
-  filter: blur(12px);
-  transform: rotateX(68deg);
-  transition: transform 900ms ease;
-}
-
-.envelope {
-  position: absolute;
-  inset: 0;
-  transform: rotateX(7deg) rotateZ(-1.5deg);
-  transform-style: preserve-3d;
-  animation: envelope-float 3.8s ease-in-out infinite;
-}
-
-@keyframes envelope-float {
-  50% { transform: translateY(-8px) rotateX(4deg) rotateZ(1deg); }
-}
-
-.envelope__back,
-.envelope__front,
-.envelope__flap,
-.envelope__letter {
-  position: absolute;
-  inset: 0;
-  border-radius: 0.7rem;
-}
-
-.envelope__back {
-  background: linear-gradient(145deg, #fffefa, #eadfce);
-  border: 1px solid rgba(165, 135, 96, 0.26);
-}
-
-.envelope__letter {
-  z-index: 2;
-  inset: 8% 7%;
-  display: grid;
-  place-items: center;
-  align-content: center;
-  gap: 0.4rem;
-  color: var(--cocoa);
-  background: var(--paper);
-  border: 1px solid rgba(201, 165, 106, 0.3);
-  font-family: var(--serif);
-  font-size: clamp(0.85rem, 4vw, 1.15rem);
-  line-height: 1.3;
-  transition: transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.envelope__letter b {
-  color: var(--gold);
-  font-size: 1.5em;
-  letter-spacing: 0.08em;
-}
-
-.envelope__front {
-  z-index: 3;
-  overflow: hidden;
-  background:
-    linear-gradient(32deg, transparent 49.5%, rgba(201, 165, 106, 0.18) 50%, transparent 50.5%),
-    linear-gradient(-32deg, transparent 49.5%, rgba(201, 165, 106, 0.18) 50%, transparent 50.5%),
-    linear-gradient(145deg, #f8eee1 5%, #fffaf3 70%);
-  clip-path: polygon(0 34%, 50% 70%, 100% 34%, 100% 100%, 0 100%);
-}
-
-.envelope__flap {
-  z-index: 4;
-  background: linear-gradient(170deg, #fffdf8, #eadccb);
-  clip-path: polygon(0 0, 100% 0, 50% 70%);
-  transform-origin: top;
-  backface-visibility: hidden;
-  transition: transform 900ms cubic-bezier(0.22, 0.75, 0.15, 1);
-}
-
-.intro.is-opening .envelope__flap {
-  transform: rotateX(178deg);
-}
-
-.intro.is-opening .envelope__letter {
-  transform: translateY(-42%) scale(1.04);
-}
-
-.intro.is-opening .envelope-shadow {
-  transform: rotateX(68deg) scale(0.82);
-}
-
-.seal-button {
-  position: relative;
-  z-index: 6;
-  display: grid;
-  justify-items: center;
-  gap: 0.65rem;
-  padding: 0;
-  color: var(--cocoa);
-  background: none;
-  border: 0;
+  z-index: 7;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  min-height: 2.5rem;
+  padding: 0.55rem 0.85rem;
+  color: rgba(255, 248, 241, 0.78);
+  background: rgba(20, 5, 10, 0.52);
+  border: 1px solid rgba(255, 248, 241, 0.2);
+  border-radius: 999px;
+  backdrop-filter: blur(12px);
   cursor: pointer;
 }
 
-.seal-button__monogram,
+.spline-intro__loading {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  bottom: 1.4rem;
+  padding: 0.45rem 0.75rem;
+  color: rgba(255, 248, 241, 0.72);
+  background: rgba(20, 5, 10, 0.48);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+  transition: opacity 300ms ease;
+  pointer-events: none;
+}
+
+.spline-intro__loading.is-hidden {
+  opacity: 0;
+}
+
 .footer__seal {
   display: grid;
   place-items: center;
@@ -324,33 +206,6 @@ button {
   font-family: var(--serif);
   font-size: 1.2rem;
   letter-spacing: 0.06em;
-  transition: transform 220ms ease, filter 220ms ease;
-}
-
-.seal-button:hover .seal-button__monogram,
-.seal-button:focus-visible .seal-button__monogram {
-  filter: brightness(1.08);
-  transform: translateY(-3px) rotate(4deg) scale(1.04);
-}
-
-.seal-button__label {
-  font-size: 0.76rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.intro__skip {
-  position: absolute;
-  z-index: 7;
-  right: 1.25rem;
-  bottom: 1.25rem;
-  padding: 0.4rem;
-  color: var(--ink-soft);
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid currentColor;
-  cursor: pointer;
 }
 
 .site {
@@ -1076,21 +931,9 @@ button {
 }
 
 @media (max-height: 670px) and (max-width: 650px) {
-  .intro {
-    gap: 0.6rem;
-  }
-
-  .intro__copy h1 {
-    font-size: 2.5rem;
-  }
-
-  .envelope-stage {
-    width: 230px;
-    height: 145px;
-  }
-
-  .seal-button__monogram {
-    width: 3.5rem;
+  .spline-intro__skip {
+    right: 0.75rem;
+    bottom: 0.75rem;
   }
 }
 

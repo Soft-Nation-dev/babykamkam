@@ -16,6 +16,10 @@
     <meta property="og:image" content="assets/baby-primary.webp" />
     <title>Anaya Kamsiyochukwu | Child Dedication</title>
     <link rel="stylesheet" href="styles.css" />
+    <script
+      type="module"
+      src="https://cdn.spline.design/@splinetool/viewer@2.0.180/build/spline-viewer.js"
+    ></script>
     <script src="app.js" defer></script>
   </head>
   <body class="intro-active">
@@ -27,31 +31,18 @@
       <div class="stars" data-stars></div>
     </div>
 
-    <section class="intro" data-intro aria-labelledby="intro-title">
-      <div class="intro__copy">
-        <p class="eyebrow">A little blessing awaits</p>
-        <h1 id="intro-title">You’re invited</h1>
-        <p>Tap the seal to open Anaya’s invitation</p>
+    <section class="spline-intro" data-intro aria-label="Baby Kam Kam invitation opening">
+      <spline-viewer
+        class="spline-intro__viewer"
+        url="https://prod.spline.design/eAXj4KcYPondYjVP/scene.splinecode"
+        loading="eager"
+      ></spline-viewer>
+      <div class="spline-intro__loading" data-spline-loading role="status">
+        Loading invitation…
       </div>
-
-      <div class="envelope-stage" aria-hidden="true">
-        <div class="envelope-shadow"></div>
-        <div class="envelope">
-          <div class="envelope__back"></div>
-          <div class="envelope__letter">
-            <span>For this child<br />we prayed</span>
-            <b>AK</b>
-          </div>
-          <div class="envelope__front"></div>
-          <div class="envelope__flap"></div>
-        </div>
-      </div>
-
-      <button class="seal-button" type="button" data-open-invitation>
-        <span class="seal-button__monogram">AK</span>
-        <span class="seal-button__label">Open invitation</span>
+      <button class="spline-intro__skip" type="button" data-skip-intro>
+        Skip opening
       </button>
-      <button class="intro__skip" type="button" data-skip-intro>Skip animation</button>
     </section>
 
     <main id="invitation" class="site" data-site aria-hidden="true">
@@ -220,7 +211,7 @@
     </main>
 
     <noscript>
-      <style>.intro { display: none !important; } .site { opacity: 1 !important; visibility: visible !important; }</style>
+      <style>.spline-intro { display: none !important; } .site { opacity: 1 !important; visibility: visible !important; }</style>
     </noscript>
   </body>
 </html>

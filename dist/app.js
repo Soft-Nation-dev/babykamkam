@@ -1,12 +1,21 @@
 const body = document.body;
+const root = document.documentElement;
 const intro = document.querySelector("[data-intro]");
 const site = document.querySelector("[data-site]");
-const openButton = document.querySelector("[data-open-invitation]");
+const splineViewer = document.querySelector("spline-viewer");
+const splineLoading = document.querySelector("[data-spline-loading]");
 const skipButton = document.querySelector("[data-skip-intro]");
 const skipLink = document.querySelector(".skip-link");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 let introFinished = false;
+let openingFallback = 0;
+const loadingFallback = window.setTimeout(
+  () => splineLoading.classList.add("is-hidden"),
+  4500,
+);
+
+root.classList.add("intro-active");
 
 function finishIntro({ focus = false } = {}) {
   if (introFinished) return;
@@ -15,6 +24,10 @@ function finishIntro({ focus = false } = {}) {
   site.classList.add("is-visible");
   site.setAttribute("aria-hidden", "false");
   body.classList.remove("intro-active");
+  root.classList.remove("intro-active");
+  window.clearTimeout(openingFallback);
+
+  window.setTimeout(() => intro.remove(), reduceMotion ? 0 : 900);
 
   document.querySelectorAll(".hero .reveal").forEach((element, index) => {
     window.setTimeout(() => element.classList.add("is-revealed"), index * 130);
@@ -27,16 +40,29 @@ function finishIntro({ focus = false } = {}) {
   }
 }
 
-function openInvitation() {
-  if (introFinished) return;
+function beginOpeningHandoff() {
+  if (introFinished || openingFallback) return;
   intro.classList.add("is-opening");
-  openButton.disabled = true;
-  window.setTimeout(() => finishIntro(), reduceMotion ? 0 : 1100);
+  openingFallback = window.setTimeout(() => finishIntro(), reduceMotion ? 500 : 6500);
 }
 
-openButton.addEventListener("click", openInvitation);
 skipButton.addEventListener("click", () => finishIntro({ focus: true }));
 skipLink.addEventListener("click", () => finishIntro());
+
+splineViewer.addEventListener("load", () => {
+  window.clearTimeout(loadingFallback);
+  splineLoading.classList.add("is-hidden");
+});
+
+window.addEventListener("message", (event) => {
+  if (event.data?.type === "baby-kamkam-opening-started") {
+    beginOpeningHandoff();
+  }
+
+  if (event.data?.type === "baby-kamkam-opening-complete") {
+    finishIntro();
+  }
+});
 
 window.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && !introFinished) finishIntro({ focus: true });
