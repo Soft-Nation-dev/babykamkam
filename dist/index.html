@@ -97,14 +97,16 @@
         }
       } catch (e) {}
 
-      import { Application } from 'https://cdn.spline.design/@splinetool/runtime@2.0.180/build/runtime.js';
+      import { Application } from 'https://cdn.spline.design/@splinetool/runtime@2.0.184/build/runtime.js';
 
       const canvas = document.getElementById('canvas3d');
       const loader = document.getElementById('loader');
 
-      const app = new Application(canvas);
+      // The scene is authored by us, so its HTML controls can run directly
+      // in this page instead of paying the sandbox messaging overhead.
+      const app = new Application(canvas, { htmlContentMode: 'inline' });
 
-      app.load('https://prod.spline.design/uDv5ybrM-NXZYv0H/scene.splinecode?v=20261116-camera-fix')
+      app.load('./assets/scene.splinecode')
         .then(() => {
           if (app._renderer) {
             app._renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDPR));
