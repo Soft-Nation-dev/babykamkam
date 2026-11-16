@@ -98,7 +98,7 @@
         }
       } catch (e) {}
 
-      import { Application } from 'https://cdn.spline.design/@splinetool/runtime@2.0.184/build/runtime.js';
+      import { Application } from 'https://cdn.spline.design/@splinetool/runtime@2.0.186/build/runtime.js';
 
       const canvas = document.getElementById('canvas3d');
       const loader = document.getElementById('loader');
@@ -114,11 +114,8 @@
             app._renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDPR));
           }
           const flightCamera = app.findObjectByName('Website Flight Camera');
-          // Portrait screens have a much narrower horizontal field of view.
-          // Pull back before the inline scene snapshots its landing endpoint.
-          if (isMobile && flightCamera) {
-            flightCamera.position.y = 1500;
-          }
+          // The scene now derives its invitation landing pose from the easel
+          // geometry, so desktop and portrait screens share one stable target.
           if (isMobilePreview) {
           console.info('[BabyKamKam Camera]', JSON.stringify({
             keys: flightCamera ? Object.keys(flightCamera) : [],

@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1092" height="1456" viewBox="0 0 1092 1456" role="img" aria-labelledby="title description">
+  <title id="title">Child dedication invitation for Anaya Kamsiyochukwu</title>
+  <desc id="description">A vintage ivory, burgundy and gold invitation from Engr. and Mrs. Asogwa.</desc>
+
+  <image href="vintage-background-v1.png" width="1092" height="1456" preserveAspectRatio="none"/>
+
+  <g text-anchor="middle" fill="#4c352f">
+    <text x="546" y="267" fill="#9a7426" font-family="Georgia, serif" font-size="23" font-weight="700" letter-spacing="7">WITH JOYFUL HEARTS</text>
+    <text x="546" y="318" fill="#501427" font-family="Palatino Linotype, Book Antiqua, Georgia, serif" font-size="38" font-weight="700" letter-spacing="1.5">Engr. &amp; Mrs. Asogwa</text>
+    <text x="546" y="363" font-family="Georgia, serif" font-size="27" font-style="italic">warmly invite you to celebrate the</text>
+
+    <g stroke="#9a7426" stroke-width="1.5">
+      <line x1="337" y1="402" x2="485" y2="402"/>
+      <line x1="607" y1="402" x2="755" y2="402"/>
+    </g>
+    <text x="546" y="411" fill="#9a7426" font-family="Georgia, serif" font-size="24">❦</text>
+
+    <text x="546" y="472" fill="#701d38" font-family="Palatino Linotype, Book Antiqua, Georgia, serif" font-size="54" font-weight="700" letter-spacing="3">CHILD DEDICATION</text>
+    <text x="546" y="518" font-family="Georgia, serif" font-size="25" font-style="italic">of their beloved daughter</text>
+    <text x="546" y="594" fill="#501427" font-family="Monotype Corsiva, Segoe Script, Palatino Linotype, serif" font-size="78" font-style="italic" font-weight="700">Anaya</text>
+    <text x="546" y="648" fill="#701d38" font-family="Palatino Linotype, Georgia, serif" font-size="35" font-weight="700" letter-spacing="6">KAMSIYOCHUKWU</text>
+
+    <g stroke="#9a7426" stroke-opacity=".62" stroke-width="1.3">
+      <line x1="220" y1="688" x2="872" y2="688"/>
+      <line x1="220" y1="812" x2="872" y2="812"/>
+    </g>
+    <text x="546" y="746" fill="#501427" font-family="Georgia, serif" font-size="33" font-weight="700">Sunday · 13 December 2026</text>
+    <text x="546" y="791" fill="#9a7426" font-family="Georgia, serif" font-size="27" font-weight="700" letter-spacing="2">RECEPTION · 2:00 PM</text>
+
+    <text x="546" y="864" fill="#9a7426" font-family="Georgia, serif" font-size="19" font-weight="700" letter-spacing="5">VENUE</text>
+    <text x="546" y="905" fill="#501427" font-family="Georgia, serif" font-size="28" font-weight="700">K’ville</text>
+    <text x="546" y="942" font-family="Georgia, serif" font-size="24">No. 16 Ituku Street, Upper Chime</text>
+    <text x="546" y="976" font-family="Georgia, serif" font-size="24">New Haven</text>
+
+    <text x="546" y="1030" fill="#9a7426" font-family="Georgia, serif" font-size="19" font-weight="700" letter-spacing="5">RSVP</text>
+    <text x="546" y="1068" font-family="Georgia, serif" font-size="23" font-weight="700" letter-spacing="1">0706 492 0604  ·  0812 025 5042</text>
+    <text x="546" y="1123" fill="#701d38" font-family="Georgia, serif" font-size="28" font-style="italic" font-weight="700">#BabyKamkam</text>
+  </g>
+</svg>
