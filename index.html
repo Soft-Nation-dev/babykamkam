@@ -85,7 +85,8 @@
 
     <script type="module">
       // Mobile budget optimization: cap devicePixelRatio to prevent GPU thermal freezing
-      const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || window.innerWidth < 768;
+      const isMobilePreview = new URLSearchParams(location.search).has('mobile-preview');
+      const isMobile = isMobilePreview || /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || window.innerWidth < 768;
       const maxDPR = isMobile ? 1.0 : 1.5;
 
       try {
@@ -105,11 +106,26 @@
       // The scene is authored by us, so its HTML controls can run directly
       // in this page instead of paying the sandbox messaging overhead.
       const app = new Application(canvas, { htmlContentMode: 'inline' });
+      globalThis.babyKamkamApp = app;
 
       app.load('./assets/scene.splinecode')
         .then(() => {
           if (app._renderer) {
             app._renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDPR));
+          }
+          const flightCamera = app.findObjectByName('Website Flight Camera');
+          // Portrait screens have a much narrower horizontal field of view.
+          // Pull back before the inline scene snapshots its landing endpoint.
+          if (isMobile && flightCamera) {
+            flightCamera.position.y = 1500;
+          }
+          if (isMobilePreview) {
+          console.info('[BabyKamKam Camera]', JSON.stringify({
+            keys: flightCamera ? Object.keys(flightCamera) : [],
+            fov: flightCamera?.fov,
+            zoom: flightCamera?.zoom,
+            position: flightCamera?.position
+          }));
           }
           // Scene geometry is ready, but GPU textures and material saturation need
           // extra time to fully resolve. Hold the loader for 2.5s so the first
