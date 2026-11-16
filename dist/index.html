@@ -1,336 +1,96 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#2a0d12" />
-    <meta
-      name="description"
-      content="Join Engr. & Mrs. Asogwa for the child dedication reception of Anaya Kamsiyochukwu on 13 December 2026."
-    />
-    <meta property="og:title" content="Anaya's Child Dedication" />
-    <meta
-      property="og:description"
-      content="A little blessing, a beautiful day, and a celebration with the people we love."
-    />
-    <meta property="og:image" content="assets/baby-primary.webp" />
-    <title>Baby Kam Kam — 3D Invitation</title>
-    <style>
-      * {
-        box-sizing: border-box;
-      }
-      html,
-      body {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        background: #2a0d12;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      }
-      #canvas3d {
-        width: 100%;
-        height: 100%;
-        display: block;
-        touch-action: manipulation;
-      }
-      .loader {
-        position: fixed;
-        inset: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background: #2a0d12;
-        color: #f7e6c4;
-        z-index: 9999;
-        transition: opacity 0.8s ease, visibility 0.8s;
-        pointer-events: none;
-      }
-      .loader.is-hidden {
-        opacity: 0;
-        visibility: hidden;
-      }
-      .loader__spinner {
-        width: 44px;
-        height: 44px;
-        border: 3px solid rgba(247, 230, 196, 0.2);
-        border-top-color: #d4af37;
-        border-radius: 50%;
-        animation: spin 0.9s linear infinite;
-        margin-bottom: 14px;
-      }
-      .loader__text {
-        font-size: 14px;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        font-weight: 500;
-        color: rgba(247, 230, 196, 0.9);
-      }
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="loader" id="loader" role="status" aria-live="polite">
-      <div class="loader__spinner"></div>
-      <div class="loader__text">Loading invitation…</div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#2a0d12">
+  <meta name="description" content="Join Engr. & Mrs. Asogwa for the child dedication reception of Anaya Kamsiyochukwu on 13 December 2026.">
+  <meta property="og:title" content="Anaya's Child Dedication">
+  <meta property="og:description" content="A little blessing, a beautiful day, and a celebration with the people we love.">
+  <meta property="og:image" content="assets/baby-primary.webp">
+  <link rel="preconnect" href="https://cdn.spline.design" crossorigin>
+  <link rel="modulepreload" href="https://cdn.spline.design/@splinetool/runtime@2.0.186/build/runtime.js" crossorigin>
+  <link rel="preload" href="assets/scene.splinecode" as="fetch" crossorigin>
+  <title>Baby Kam Kam — 3D Invitation</title>
+  <style>
+    :root{color-scheme:dark;--wine950:#21070e;--wine900:#2a0d12;--cream:#fff8ed;--gold:#ddb95f;--safe-bottom:max(16px,env(safe-area-inset-bottom))}
+    *{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--wine900);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,a{-webkit-tap-highlight-color:transparent}button{font:inherit}
+    #canvas3d{width:100%;height:100%;display:block;touch-action:manipulation;opacity:0;transition:opacity .42s ease;background:var(--wine900)}body.scene-ready #canvas3d{opacity:1}
+    .loader{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:28px;color:var(--cream);overflow:hidden;pointer-events:auto;background:radial-gradient(circle at 50% 42%,rgba(133,49,72,.30),transparent 34%),linear-gradient(145deg,#18050b 0%,#310d17 58%,#21070e 100%);transition:opacity .58s cubic-bezier(.22,.75,.25,1),visibility .58s}
+    .loader::before,.loader::after{content:"";position:absolute;pointer-events:none}.loader::before{inset:0;opacity:.20;background-image:radial-gradient(rgba(255,248,237,.6) .6px,transparent .6px);background-size:5px 5px;mix-blend-mode:soft-light}.loader::after{inset:18px;border:1px solid rgba(221,185,95,.24);border-radius:28px;box-shadow:inset 0 0 50px rgba(0,0,0,.18)}.loader.is-hidden{opacity:0;visibility:hidden;pointer-events:none}.loader__content{position:relative;z-index:1;width:min(88vw,390px);text-align:center}.loader__eyebrow{margin:0 0 28px;color:rgba(255,248,237,.70);font-size:11px;font-weight:700;letter-spacing:.24em;text-transform:uppercase}
+    .loader__seal-wrap{position:relative;display:grid;place-items:center;width:148px;height:148px;margin:0 auto 26px}.loader__progress{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(221,185,95,.22);border-top-color:var(--gold);animation:seal-spin 1.35s linear infinite}.loader.is-ready .loader__progress{animation:none;border-color:rgba(221,185,95,.34);transform:scale(.94)}
+    .loader__seal{position:relative;width:112px;height:112px;border:0;border-radius:50%;color:#f8dfb0;cursor:pointer;opacity:.68;background:radial-gradient(circle at 38% 28%,rgba(255,205,154,.34),transparent 22%),radial-gradient(circle at 50% 55%,#8d2f2f 0 38%,#6d1d26 63%,#3f0e18 100%);box-shadow:0 20px 45px rgba(0,0,0,.38),inset 0 0 0 4px rgba(255,191,128,.12),inset 0 0 0 10px rgba(38,4,12,.24),0 0 0 7px rgba(115,30,39,.48);transition:transform .25s ease,opacity .3s ease,filter .3s ease}.loader__seal::before,.loader__seal::after{content:"";position:absolute;border-radius:50%;pointer-events:none}.loader__seal::before{inset:15px;border:1px solid rgba(248,223,176,.42)}.loader__seal::after{inset:23px;border:1px dashed rgba(248,223,176,.26)}.loader__seal:disabled{cursor:wait}.loader.is-ready .loader__seal{opacity:1;filter:saturate(1.12);animation:seal-arrive .7s ease both}.loader.is-ready .loader__seal:not(:disabled):hover{transform:translateY(-2px) scale(1.025)}.loader.is-ready .loader__seal:not(:disabled):active{transform:scale(.965)}
+    .loader__monogram{position:relative;z-index:1;display:block;font-family:Georgia,"Times New Roman",serif;font-size:26px;line-height:.86;letter-spacing:.04em;text-shadow:0 2px 8px rgba(0,0,0,.35)}.loader__monogram small{display:block;margin-top:9px;font:700 7px/1.2 Inter,sans-serif;letter-spacing:.22em;text-transform:uppercase}.loader__text{margin:0;font:500 clamp(23px,6vw,31px)/1.18 Georgia,"Times New Roman",serif;letter-spacing:-.015em}.loader__hint{min-height:21px;margin:10px 0 0;color:rgba(255,248,237,.62);font-size:12px;letter-spacing:.04em}.loader.is-ready .loader__hint{color:rgba(255,248,237,.78)}
+    .premium-actions{position:fixed;z-index:31;top:max(14px,env(safe-area-inset-top));right:14px;display:flex;gap:7px;padding:6px;border-radius:999px;background:linear-gradient(145deg,rgba(255,255,255,.20),rgba(76,31,47,.43));border:1px solid rgba(255,248,237,.38);box-shadow:0 14px 34px rgba(43,12,23,.24);-webkit-backdrop-filter:blur(14px) saturate(135%);backdrop-filter:blur(14px) saturate(135%);transition:opacity .25s ease,transform .25s ease,visibility .25s}.premium-actions button{min-width:44px;min-height:42px;border:0;border-radius:999px;cursor:pointer;padding:0 13px;color:var(--cream);background:rgba(255,248,237,.08);font-weight:700;font-size:12px}.premium-actions button:active{transform:scale(.96);background:rgba(255,248,237,.18)}.premium-hidden{opacity:0!important;visibility:hidden!important;pointer-events:none!important;transform:translateY(7px)}
+    .details-overlay{position:fixed;z-index:100;inset:0;display:grid;place-items:center;padding:18px;background:rgba(25,6,13,.42);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);transition:opacity .25s ease,visibility .25s}.details-card{width:min(92vw,440px);max-height:min(82vh,650px);overflow:auto;padding:24px;border-radius:28px;color:var(--cream);background:linear-gradient(155deg,rgba(111,38,61,.94),rgba(42,13,18,.94));border:1px solid rgba(255,248,237,.30);box-shadow:0 28px 80px rgba(17,3,8,.46)}.details-card__top{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}.details-card__eyebrow{margin:0 0 6px;color:#e8c97f;font-size:10px;font-weight:800;letter-spacing:.19em;text-transform:uppercase}.details-card h2{margin:0;font:500 30px/1.05 Georgia,serif}.details-card__close{flex:0 0 42px;width:42px;height:42px;border:1px solid rgba(255,255,255,.18);border-radius:50%;color:var(--cream);background:rgba(255,255,255,.08);cursor:pointer;font-size:21px}.details-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:22px 0 15px}.detail-tile{padding:15px;border-radius:18px;background:rgba(255,248,237,.08);border:1px solid rgba(255,248,237,.12)}.detail-tile--wide{grid-column:1/-1}.detail-tile span{display:block;margin-bottom:5px;color:rgba(255,248,237,.60);font-size:10px;font-weight:750;letter-spacing:.12em;text-transform:uppercase}.detail-tile strong,.detail-tile address{font-size:14px;line-height:1.45;font-style:normal}.details-card__actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.details-card__actions a,.details-card__actions button{min-height:47px;display:grid;place-items:center;border-radius:15px;cursor:pointer;border:1px solid rgba(255,255,255,.18);color:var(--cream);text-decoration:none;background:rgba(255,248,237,.10);font:750 13px/1 Inter,sans-serif}.details-card__actions a{background:var(--cream);color:#592237}.site-toast{position:fixed;z-index:120;left:50%;bottom:calc(var(--safe-bottom) + 76px);transform:translate(-50%,10px);padding:10px 15px;border-radius:999px;color:var(--cream);background:rgba(42,13,18,.88);border:1px solid rgba(255,248,237,.24);font-size:12px;font-weight:700;opacity:0;visibility:hidden;transition:.22s ease}.site-toast.is-visible{opacity:1;visibility:visible;transform:translate(-50%,0)}
+    @keyframes seal-spin{to{transform:rotate(360deg)}}@keyframes seal-arrive{from{transform:scale(.86)}to{transform:scale(1)}}
+    @media(max-width:600px){.loader{padding:18px}.loader::after{inset:10px;border-radius:22px}.loader__eyebrow{margin-bottom:22px}.loader__seal-wrap{width:138px;height:138px;margin-bottom:22px}.loader__seal{width:106px;height:106px}.premium-actions{top:max(10px,env(safe-area-inset-top));right:10px}.premium-actions button{padding:0 11px}.details-overlay{place-items:end center;padding:10px}.details-card{width:100%;padding:21px;border-radius:26px}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
+    @supports not ((backdrop-filter:blur(2px)) or (-webkit-backdrop-filter:blur(2px))){.premium-actions,.details-overlay{-webkit-backdrop-filter:none;backdrop-filter:none}.premium-actions{background:rgba(76,31,47,.94)}}
+    .premium-actions,.details-overlay{pointer-events:auto}
+  </style>
+</head>
+<body>
+  <div class="loader" id="loader" role="status" aria-live="polite">
+    <div class="loader__content">
+      <p class="loader__eyebrow">An invitation from the Asogwa family</p>
+      <div class="loader__seal-wrap"><div class="loader__progress" aria-hidden="true"></div><button class="loader__seal" id="open-invitation" type="button" disabled aria-label="Open the invitation"><span class="loader__monogram">BK<small>Baby Kamkam</small></span></button></div>
+      <p class="loader__text">A little blessing awaits</p>
+      <p class="loader__hint" id="loader-hint">Preparing the celebration…</p>
     </div>
-
-    <canvas id="canvas3d"></canvas>
-
-    <script type="module">
-      // Mobile budget optimization: cap devicePixelRatio to prevent GPU thermal freezing
-      const isMobilePreview = new URLSearchParams(location.search).has('mobile-preview');
-      const isMobile = isMobilePreview || /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || window.innerWidth < 768;
-      const maxDPR = isMobile ? 1.0 : 1.5;
-
-      try {
-        if (window.devicePixelRatio > maxDPR) {
-          Object.defineProperty(window, 'devicePixelRatio', {
-            get() { return maxDPR; },
-            configurable: true
-          });
-        }
-      } catch (e) {}
-
-      import { Application } from 'https://cdn.spline.design/@splinetool/runtime@2.0.186/build/runtime.js';
-
-      const canvas = document.getElementById('canvas3d');
-      const loader = document.getElementById('loader');
-
-      // The scene is authored by us, so its HTML controls can run directly
-      // in this page instead of paying the sandbox messaging overhead.
-      const app = new Application(canvas, { htmlContentMode: 'inline' });
-      globalThis.babyKamkamApp = app;
-
-      app.load('./assets/scene.splinecode')
-        .then(() => {
-          if (app._renderer) {
-            app._renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDPR));
-          }
-          const flightCamera = app.findObjectByName('Website Flight Camera');
-          // The scene now derives its invitation landing pose from the easel
-          // geometry, so desktop and portrait screens share one stable target.
-          if (isMobilePreview) {
-          console.info('[BabyKamKam Camera]', JSON.stringify({
-            keys: flightCamera ? Object.keys(flightCamera) : [],
-            fov: flightCamera?.fov,
-            zoom: flightCamera?.zoom,
-            position: flightCamera?.position
-          }));
-          }
-          // Scene geometry is ready, but GPU textures and material saturation need
-          // extra time to fully resolve. Hold the loader for 2.5s so the first
-          // frame the user sees is fully saturated and colour-rich.
-          if (loader.querySelector('.loader__text')) {
-            loader.querySelector('.loader__text').textContent = 'Preparing invitation\u2026';
-          }
-          return new Promise(resolve => setTimeout(resolve, 2500));
-        })
-        .then(() => {
-          loader.classList.add('is-hidden');
-        })
-        .catch((err) => {
-          console.error('Failed to load Spline scene:', err);
-          loader.innerHTML = '<p style="color:#f7e6c4;padding:24px;text-align:center;">Failed to load 3D invitation. Please refresh.</p>';
-        });
-
-      window.addEventListener('resize', () => {
-        if (app._renderer) {
-          app._renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDPR));
-        }
-      });
-    </script>
-
-    <!--
-    === EXISTING 2D WEBSITE CODE COMMENTED OUT BELOW ===
-
-    <a class="skip-link" href="#invitation">Skip to invitation</a>
-
-    <div class="ambient" aria-hidden="true">
-      <div class="ambient__glow ambient__glow--one"></div>
-      <div class="ambient__glow ambient__glow--two"></div>
-      <div class="stars" data-stars></div>
-    </div>
-
-    <section class="spline-intro" data-intro aria-label="Baby Kam Kam invitation opening">
-      <div class="spline-intro__loading" data-spline-loading role="status">
-        Loading invitation…
-      </div>
-      <button class="spline-intro__skip" type="button" data-skip-intro>
-        Skip opening
-      </button>
+  </div>
+  <canvas id="canvas3d" aria-label="Interactive 3D child dedication invitation"></canvas>
+  <nav class="premium-actions premium-hidden" id="premium-actions" aria-label="More invitation actions"><button id="details-button" type="button">Details</button><button id="share-button" type="button" aria-label="Share invitation">Share</button></nav>
+  <div class="details-overlay premium-hidden" id="details-overlay" role="dialog" aria-modal="true" aria-labelledby="details-title">
+    <section class="details-card"><div class="details-card__top"><div><p class="details-card__eyebrow">#BabyKamkam</p><h2 id="details-title">Child dedication</h2></div><button class="details-card__close" id="details-close" type="button" aria-label="Close details">×</button></div>
+      <div class="details-grid"><div class="detail-tile"><span>Date</span><strong>Sunday, 13 December 2026</strong></div><div class="detail-tile"><span>Reception</span><strong>2:00 PM</strong></div><div class="detail-tile detail-tile--wide"><span>Venue</span><address>K’ville, No. 16 Ituku Street, Upper Chime, New Haven</address></div><div class="detail-tile detail-tile--wide"><span>Celebrating</span><strong>Anaya Kamsiyochukwu · Engr. &amp; Mrs. Asogwa</strong></div></div>
+      <div class="details-card__actions"><a href="https://www.google.com/maps/search/?api=1&query=No.%2016%20Ituku%20Street%2C%20Upper%20Chime%2C%20New%20Haven" target="_blank" rel="noopener noreferrer">Open map</a><button id="copy-details" type="button">Copy details</button></div>
     </section>
+  </div>
+  <div class="site-toast" id="site-toast" role="status" aria-live="polite"></div>
 
-    <main id="invitation" class="site" data-site aria-hidden="true">
-      <nav class="nav" aria-label="Invitation navigation">
-        <a class="nav__brand" href="#top" aria-label="Anaya's dedication, back to top">AK</a>
-        <div class="nav__links">
-          <a href="#details">Details</a>
-          <a href="#rsvp">RSVP</a>
-        </div>
-      </nav>
-
-      <section id="top" class="hero section">
-        <div class="hero__cloud hero__cloud--left" aria-hidden="true"></div>
-        <div class="hero__cloud hero__cloud--right" aria-hidden="true"></div>
-
-        <div class="hero__copy reveal">
-          <p class="eyebrow">With joyful hearts</p>
-          <p class="hero__hosts">Engr. &amp; Mrs. Asogwa invite you to the</p>
-          <h2><span>Child Dedication of</span>Anaya Kamsiyochukwu</h2>
-          <p class="hero__date">Sunday · 13 December 2026</p>
-          <a class="button button--primary" href="#details">View celebration details</a>
-        </div>
-
-        <div class="portrait-scene reveal" data-portrait-scene>
-          <div class="spline-layer" data-spline-scene="" aria-hidden="true"></div>
-          <div class="orbit orbit--one" aria-hidden="true"></div>
-          <div class="orbit orbit--two" aria-hidden="true"></div>
-          <div class="portrait-shell">
-            <div class="portrait-shell__halo"></div>
-            <div class="portrait-shell__frame">
-              <img
-                src="assets/baby-primary.webp"
-                alt="Temporary baby portrait placeholder for Anaya"
-                width="1143"
-                height="1600"
-              />
-            </div>
-            <span class="portrait-shell__star portrait-shell__star--one">✦</span>
-            <span class="portrait-shell__star portrait-shell__star--two">✧</span>
-          </div>
-          <p class="placeholder-note">Portrait placeholder · Anaya’s photo coming soon</p>
-        </div>
-
-        <a class="scroll-cue" href="#blessing" aria-label="Scroll to the blessing">
-          <span></span>
-        </a>
-      </section>
-
-      <section id="blessing" class="blessing section">
-        <div class="blessing__flower blessing__flower--left" aria-hidden="true">❀</div>
-        <div class="blessing__flower blessing__flower--right" aria-hidden="true">❀</div>
-        <div class="scripture-card reveal">
-          <span class="scripture-card__mark" aria-hidden="true">“</span>
-          <blockquote>
-            For this child I prayed; and the Lord hath given me my petition which I asked of him.
-          </blockquote>
-          <cite>1 Samuel 1:27 · KJV</cite>
-        </div>
-      </section>
-
-      <section class="countdown section" aria-labelledby="countdown-title">
-        <div class="section-heading reveal">
-          <p class="eyebrow">Counting down with joy</p>
-          <h2 id="countdown-title">Until we celebrate</h2>
-        </div>
-        <div class="countdown__grid reveal" data-countdown>
-          <div class="time-card"><strong data-days>00</strong><span>Days</span></div>
-          <div class="time-card"><strong data-hours>00</strong><span>Hours</span></div>
-          <div class="time-card"><strong data-minutes>00</strong><span>Minutes</span></div>
-          <div class="time-card"><strong data-seconds>00</strong><span>Seconds</span></div>
-        </div>
-        <p class="countdown__note reveal">Reception begins at 2:00 PM</p>
-      </section>
-
-      <section id="details" class="details section">
-        <div class="section-heading reveal">
-          <p class="eyebrow">The celebration</p>
-          <h2>Save the date</h2>
-          <p>Come share in our gratitude, prayers and joy.</p>
-        </div>
-
-        <div class="details__grid">
-          <article class="detail-card reveal tilt-card">
-            <span class="detail-card__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M7 2v3M17 2v3M3.5 9h17M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2Z" /></svg>
-            </span>
-            <p>Date</p>
-            <h3>Sunday<br />13 December 2026</h3>
-          </article>
-
-          <article class="detail-card reveal tilt-card">
-            <span class="detail-card__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
-            </span>
-            <p>Reception</p>
-            <h3>2:00 PM</h3>
-          </article>
-
-          <article class="detail-card detail-card--wide reveal tilt-card">
-            <span class="detail-card__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>
-            </span>
-            <p>Reception venue</p>
-            <h3>K’Villie</h3>
-            <address>No. 16 Ituku Street, Upper Chime, New Haven</address>
-            <a
-              class="text-link"
-              href="https://www.google.com/maps/search/?api=1&query=K%27Villie%2C%20No.%2016%20Ituku%20Street%2C%20Upper%20Chime%2C%20New%20Haven"
-              target="_blank"
-              rel="noopener noreferrer"
-            >Open in Maps <span aria-hidden="true">↗</span></a>
-          </article>
-        </div>
-      </section>
-
-      <section class="gallery section" aria-labelledby="gallery-title">
-        <div class="section-heading reveal">
-          <p class="eyebrow">Seven months of grace</p>
-          <h2 id="gallery-title">Our little blessing</h2>
-          <p>These photographs are temporary and will be replaced with Anaya’s own portraits.</p>
-        </div>
-        <div class="gallery__track reveal">
-          <figure class="photo-card photo-card--one">
-            <img src="assets/baby-ceremony.webp" alt="Temporary baby portrait in a dedication dress" loading="lazy" />
-            <figcaption>Precious</figcaption>
-          </figure>
-          <figure class="photo-card photo-card--two">
-            <img src="assets/baby-soft.webp" alt="Temporary baby portrait on a soft background" loading="lazy" />
-            <figcaption>Prayed for</figcaption>
-          </figure>
-          <figure class="photo-card photo-card--three">
-            <img src="assets/baby-joyful.webp" alt="Temporary smiling child portrait" loading="lazy" />
-            <figcaption>Deeply loved</figcaption>
-          </figure>
-        </div>
-      </section>
-
-      <section id="rsvp" class="rsvp section">
-        <div class="rsvp__card reveal">
-          <p class="eyebrow">Celebrate with us</p>
-          <h2>We would love to hear from you</h2>
-          <p>Send a quick WhatsApp message to let the family know you’ll be joining the celebration.</p>
-          <div class="rsvp__actions">
-            <a
-              class="button button--primary"
-              href="https://wa.me/2347064920604?text=Hello%2C%20I%E2%80%99m%20confirming%20that%20I%20will%20attend%20Anaya%20Kamsiyochukwu%E2%80%99s%20child%20dedication%20reception."
-              target="_blank"
-              rel="noopener noreferrer"
-            >WhatsApp 070 6492 0604</a>
-            <a
-              class="button button--secondary"
-              href="https://wa.me/2348120255042?text=Hello%2C%20I%E2%80%99m%20confirming%20that%20I%20will%20attend%20Anaya%20Kamsiyochukwu%E2%80%99s%20child%20dedication%20reception."
-              target="_blank"
-              rel="noopener noreferrer"
-            >WhatsApp 081 2025 5042</a>
-          </div>
-        </div>
-      </section>
-
-      <footer class="footer">
-        <div class="footer__seal" aria-hidden="true">AK</div>
-        <p>With love, Engr. &amp; Mrs. Asogwa</p>
-        <strong>#BabyKamkam</strong>
-        <small>13 · 12 · 2026</small>
-      </footer>
-    </main>
-    -->
-  </body>
+  <script type="module">
+    import {Application} from 'https://cdn.spline.design/@splinetool/runtime@2.0.186/build/runtime.js';
+    const isMobilePreview=new URLSearchParams(location.search).has('mobile-preview');
+    const isMobile=isMobilePreview||/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)||innerWidth<768;
+    const lowPower=isMobile&&typeof navigator.deviceMemory==='number'&&navigator.deviceMemory<=4;
+    const maxDPR=isMobile?1:1.4;
+    const canvas=document.getElementById('canvas3d'),loader=document.getElementById('loader'),loaderHint=document.getElementById('loader-hint'),openInvitation=document.getElementById('open-invitation'),premiumActions=document.getElementById('premium-actions'),detailsOverlay=document.getElementById('details-overlay'),toast=document.getElementById('site-toast');
+    let toastTimer=0;
+    try{if(devicePixelRatio>maxDPR)Object.defineProperty(window,'devicePixelRatio',{get:()=>maxDPR,configurable:true})}catch(_){}
+    document.documentElement.classList.toggle('low-power',lowPower);
+    const app=new Application(canvas,{htmlContentMode:'inline'});globalThis.babyKamkamApp=app;
+    const waitForElement=(id,timeout=5000)=>new Promise((resolve,reject)=>{const started=performance.now();const check=()=>{const element=document.getElementById(id);if(element)return resolve(element);if(performance.now()-started>timeout)return reject(new Error(`Missing interface element: ${id}`));requestAnimationFrame(check)};check()});
+    const cloneVector=value=>({x:Number(value.x),y:Number(value.y),z:Number(value.z)}),ease=value=>1-Math.pow(1-value,4),wrapAngle=degrees=>((degrees+540)%360)-180;
+    const showToast=message=>{clearTimeout(toastTimer);toast.textContent=message;toast.classList.add('is-visible');toastTimer=setTimeout(()=>toast.classList.remove('is-visible'),2200)};
+    function installPremiumSceneStyles(){const style=document.createElement('style');style.id='premium-scene-ui';style.textContent=`
+      #main-menu,#gallery-controls{width:min(calc(100vw - 22px),480px)!important;justify-content:center!important;gap:6px!important;padding:6px!important;border-radius:24px!important;background:linear-gradient(145deg,rgba(255,255,255,.23),rgba(73,29,45,.48))!important;border:1px solid rgba(255,248,239,.42)!important;box-shadow:0 18px 46px rgba(43,12,23,.27),inset 0 1px rgba(255,255,255,.15)!important;-webkit-backdrop-filter:blur(${lowPower?9:15}px) saturate(135%)!important;backdrop-filter:blur(${lowPower?9:15}px) saturate(135%)!important}
+      #main-menu button{flex:1!important;min-width:0!important;min-height:52px!important;padding:0 9px!important;border-radius:18px!important}#main-menu button:hover{background:rgba(255,248,239,.16)!important}#main-menu button span{margin-top:2px!important;font-size:9px!important;letter-spacing:.025em!important}
+      #gallery-controls{width:auto!important;border-radius:999px!important}#gallery-controls button{min-height:46px!important}
+      #exit-explore{min-height:46px!important;padding:0 18px!important;border-radius:999px!important;background:linear-gradient(145deg,rgba(255,255,255,.22),rgba(73,29,45,.55))!important;border:1px solid rgba(255,248,239,.42)!important;box-shadow:0 16px 40px rgba(43,12,23,.28)!important;-webkit-backdrop-filter:blur(${lowPower?8:13}px)!important;backdrop-filter:blur(${lowPower?8:13}px)!important}
+      #rsvp-card{background:linear-gradient(155deg,rgba(111,38,61,.94),rgba(42,13,18,.94))!important;border:1px solid rgba(255,248,239,.32)!important;box-shadow:0 28px 80px rgba(17,3,8,.46)!important}#rsvp-card input,#rsvp-card select{background:rgba(255,248,239,.10)!important}
+      @media(max-width:420px){#main-menu{bottom:max(10px,env(safe-area-inset-bottom))!important}#main-menu button{min-height:50px!important;padding:0 5px!important;font-size:12px!important}}
+    `;document.head.appendChild(style)}
+    function animateReturn(camera,pose,duration,onComplete){if(!camera||!pose)return onComplete();const fromPosition=cloneVector(camera.position),fromRotation=cloneVector(camera.rotation),started=performance.now();const frame=now=>{const progress=Math.min(1,(now-started)/duration),t=ease(progress);camera.position.x=fromPosition.x+(pose.position.x-fromPosition.x)*t;camera.position.y=fromPosition.y+(pose.position.y-fromPosition.y)*t;camera.position.z=fromPosition.z+(pose.position.z-fromPosition.z)*t;camera.rotation.x=fromRotation.x+wrapAngle(pose.rotation.x-fromRotation.x)*t;camera.rotation.y=fromRotation.y+wrapAngle(pose.rotation.y-fromRotation.y)*t;camera.rotation.z=fromRotation.z+wrapAngle(pose.rotation.z-fromRotation.z)*t;if(progress<1)requestAnimationFrame(frame);else onComplete()};requestAnimationFrame(frame)}
+    function interceptReturn(button,camera,getPose){if(!button)return;let allowNative=false;button.addEventListener('click',event=>{if(allowNative){allowNative=false;return}const pose=getPose();if(!pose)return;event.preventDefault();event.stopImmediatePropagation();button.disabled=true;button.style.opacity='.58';animateReturn(camera,pose,matchMedia('(prefers-reduced-motion:reduce)').matches?80:1250,()=>{button.disabled=false;button.style.opacity='';allowNative=true;button.click()})},true)}
+    function installReturnDelegation(camera,getPose){let allowNative=false;document.addEventListener('click',event=>{const button=event.target.closest?.('#exit-explore,#gallery-close');if(!button)return;if(allowNative){allowNative=false;return}const pose=getPose();if(!pose)return;event.preventDefault();event.stopImmediatePropagation();button.disabled=true;button.style.opacity='.58';animateReturn(camera,pose,matchMedia('(prefers-reduced-motion:reduce)').matches?80:1250,()=>{button.disabled=false;button.style.opacity='';allowNative=true;button.click()})},true)}
+    function syncPremiumActions(){const main=document.getElementById('main-menu'),rsvp=document.getElementById('modal-backdrop'),gallery=document.getElementById('gallery-controls'),exploreExit=document.getElementById('exit-explore');const visible=main&&!main.classList.contains('hidden')&&(!rsvp||rsvp.classList.contains('hidden'))&&(!gallery||gallery.classList.contains('hidden'))&&(!exploreExit||exploreExit.classList.contains('hidden'))&&detailsOverlay.classList.contains('premium-hidden');premiumActions.classList.toggle('premium-hidden',!visible)}
+    try{
+      await app.load('./assets/scene.splinecode');if(app._renderer)app._renderer.setPixelRatio(Math.min(devicePixelRatio||1,maxDPR));
+      const[sealTrigger,mainMenu,galleryClose,exitExplore]=await Promise.all([waitForElement('seal-trigger'),waitForElement('main-menu'),waitForElement('gallery-close'),waitForElement('exit-explore')]);
+      const flightCamera=app.findObjectByName('Website Flight Camera');let invitationPose=null;
+      const captureInvitationPose=()=>{if(!flightCamera)return;invitationPose={position:cloneVector(flightCamera.position),rotation:cloneVector(flightCamera.rotation)};document.body.dataset.invitationPose='ready';syncPremiumActions()};
+      installPremiumSceneStyles();window.addEventListener('baby-kamkam-opening-complete',captureInvitationPose,{once:true});document.getElementById('explore-button')?.addEventListener('click',captureInvitationPose,true);document.getElementById('gallery-button')?.addEventListener('click',captureInvitationPose,true);installReturnDelegation(flightCamera,()=>invitationPose);
+      const observed=[mainMenu,document.getElementById('modal-backdrop'),document.getElementById('gallery-controls'),exitExplore].filter(Boolean),observer=new MutationObserver(()=>{if(!invitationPose&&!mainMenu.classList.contains('hidden'))captureInvitationPose();else syncPremiumActions()});observed.forEach(element=>observer.observe(element,{attributes:true,attributeFilter:['class']}));
+      document.body.classList.add('scene-ready');loader.classList.add('is-ready');loaderHint.textContent='Tap the seal to open';openInvitation.disabled=false;
+      openInvitation.addEventListener('click',()=>{openInvitation.disabled=true;loaderHint.textContent='Opening your invitation…';sealTrigger.click();setTimeout(()=>loader.classList.add('is-hidden'),240)},{once:true});
+      document.getElementById('details-button').addEventListener('click',()=>{detailsOverlay.classList.remove('premium-hidden');syncPremiumActions()});
+      document.getElementById('details-close').addEventListener('click',()=>{detailsOverlay.classList.add('premium-hidden');syncPremiumActions()});
+      detailsOverlay.addEventListener('click',event=>{if(event.target===detailsOverlay){detailsOverlay.classList.add('premium-hidden');syncPremiumActions()}});
+      document.getElementById('copy-details').addEventListener('click',async()=>{const text='Anaya Kamsiyochukwu’s Child Dedication — Sunday, 13 December 2026 at 2:00 PM. K’ville, No. 16 Ituku Street, Upper Chime, New Haven. #BabyKamkam';try{await navigator.clipboard.writeText(text);showToast('Event details copied')}catch(_){showToast('Press and hold to copy the details')}});
+      document.getElementById('share-button').addEventListener('click',async()=>{const data={title:'Anaya Kamsiyochukwu’s Child Dedication',text:'Join us on Sunday, 13 December 2026 at 2:00 PM. #BabyKamkam',url:location.origin+location.pathname};try{if(navigator.share)await navigator.share(data);else{await navigator.clipboard.writeText(data.url);showToast('Invitation link copied')}}catch(error){if(error?.name!=='AbortError')showToast('Unable to share right now')}});
+    }catch(error){console.error('Failed to load Spline scene:',error);loader.classList.remove('is-ready');loaderHint.textContent='We could not prepare the invitation. Please refresh.';openInvitation.disabled=true}
+    addEventListener('resize',()=>{if(app._renderer)app._renderer.setPixelRatio(Math.min(devicePixelRatio||1,maxDPR))},{passive:true});
+  </script>
+</body>
 </html>
