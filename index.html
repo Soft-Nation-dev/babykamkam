@@ -64,7 +64,7 @@
     const lowPower=isMobile&&typeof navigator.deviceMemory==='number'&&navigator.deviceMemory<=4;
     const nativeDPR=window.devicePixelRatio||1;
     const maxDPR=Math.min(nativeDPR,isMobile?Math.min(1.6,Math.sqrt(1100000/(innerWidth*innerHeight))):Math.min(1.75,Math.sqrt(3200000/(innerWidth*innerHeight))));
-    let activeDPR=Math.min(maxDPR,isMobile?1:1.4);
+    let activeDPR=Math.min(maxDPR,isMobile?1:1.4);let opening=true;
     const perfStats=window.babyKamkamPerformance={loadMs:null,readyMs:null,frameIntervalMs:null,pixelRatio:activeDPR,adjustments:0};const bootStarted=performance.now();
     const canvas=document.getElementById('canvas3d'),loader=document.getElementById('loader'),loaderHint=document.getElementById('loader-hint'),premiumActions=document.getElementById('premium-actions'),detailsOverlay=document.getElementById('details-overlay'),toast=document.getElementById('site-toast');
     let toastTimer=0;
@@ -72,7 +72,7 @@
     document.documentElement.classList.toggle('low-power',lowPower);
     let app;try{app=new Application(canvas,{htmlContentMode:'inline',renderMode:'continuous'})}catch(error){window.babyKamkamLoading.fail();throw error}globalThis.babyKamkamApp=app;
     function applyQuality(value){const renderer=app._renderer;if(!renderer||typeof renderer.setPixelRatio!=='function')return false;const next=Math.max(.8,Math.min(maxDPR,value));try{renderer.setPixelRatio(next);activeDPR=next;perfStats.pixelRatio=next;app.requestRender?.();return true}catch(_){return false}}
-    function monitorPerformance(){let previous=0,samples=[],bad=0,good=0,lastChange=performance.now();function tick(now){if(document.hidden){previous=0;samples=[];bad=good=0}else if(previous){const dt=now-previous;if(dt>0&&dt<250)samples.push(dt);if(samples.length>=120){samples.sort((a,b)=>a-b);const median=samples[Math.floor(samples.length*.5)],p90=samples[Math.floor(samples.length*.9)];perfStats.frameIntervalMs=Math.round(p90*10)/10;samples=[];bad=p90>34?bad+1:0;good=p90<19&&median<18?good+1:0;if(now-lastChange>6500){let next=activeDPR;if(bad>=2)next=Math.max(.85,activeDPR-.15);else if(good>=3)next=Math.min(maxDPR,activeDPR+.15);if(Math.abs(next-activeDPR)>.04&&applyQuality(next)){perfStats.adjustments++;lastChange=now;bad=good=0}}}}previous=document.hidden?0:now;requestAnimationFrame(tick)}requestAnimationFrame(tick)}
+    function monitorPerformance(){let previous=0,samples=[],bad=0,good=0,lastChange=performance.now();function tick(now){if(document.hidden||opening){previous=0;samples=[];bad=good=0;lastChange=now}else if(previous){const dt=now-previous;if(dt>0&&dt<250)samples.push(dt);if(samples.length>=120){samples.sort((a,b)=>a-b);const median=samples[Math.floor(samples.length*.5)],p90=samples[Math.floor(samples.length*.9)];perfStats.frameIntervalMs=Math.round(p90*10)/10;samples=[];bad=p90>34?bad+1:0;good=p90<19&&median<18?good+1:0;if(now-lastChange>6500){let next=activeDPR;if(bad>=2)next=Math.max(.85,activeDPR-.15);else if(good>=3)next=Math.min(maxDPR,activeDPR+.15);if(Math.abs(next-activeDPR)>.04&&applyQuality(next)){perfStats.adjustments++;lastChange=now;bad=good=0}}}}previous=(document.hidden||opening)?0:now;requestAnimationFrame(tick)}requestAnimationFrame(tick)}
     const waitForElement=(id)=>new Promise((resolve,reject)=>{const started=performance.now();const check=()=>{const element=document.getElementById(id);if(element)return resolve(element);requestAnimationFrame(check)};check()});
     const cloneVector=value=>({x:Number(value.x),y:Number(value.y),z:Number(value.z)}),ease=value=>1-Math.pow(1-value,4),wrapAngle=degrees=>((degrees+540)%360)-180;
     const showToast=message=>{clearTimeout(toastTimer);toast.textContent=message;toast.classList.add('is-visible');toastTimer=setTimeout(()=>toast.classList.remove('is-visible'),2200)};
@@ -99,7 +99,7 @@
       const pics=['baby-ceremony.webp','baby-joyful.webp','baby-primary.webp','baby-soft.webp','invitation-v1-web.jpg'];const decoded=Promise.all(pics.map(async name=>{const image=new Image();image.src='./assets/'+name;await image.decode()}));
       const timed=promise=>promise;
       await timed(decoded);if(document.fonts)await timed(document.fonts.ready);loaderHint.textContent='Finishing the visual details…';
-      const renderer=app._renderer;const device=renderer?.backend?.device;
+      const renderer=app._renderer;const device=renderer?.backend?.device;/* Only compile when the runtime exposes an actual scene and camera. Never move the authored camera. */const renderScene=app._scene,renderCamera=app._camera;if(renderScene?.isScene&&renderCamera?.isCamera&&typeof renderer?.compileAsync==='function'){try{await renderer.compileAsync(renderScene,renderCamera);perfStats.shaderWarmup='compiled'}catch(_){perfStats.shaderWarmup='unavailable'}}else{perfStats.shaderWarmup='unavailable'}
       let frames=0,stable=0;let previous=performance.now();mark();
       while(true){app.requestRender?.();const now=await timed(nextFrame());const dt=now-previous;previous=now;if(document.hidden){stable=0;continue}frames++;stable=dt<100?stable+1:0;
         const pendingImages=Array.from(document.images).some(img=>!img.complete);
@@ -111,8 +111,8 @@
     try{
       loaderHint.textContent='Loading the 3D environment…';await app.load('./assets/scene.splinecode',undefined,{credentials:'same-origin',mode:'cors'});perfStats.loadMs=Math.round(performance.now()-bootStarted);applyQuality(activeDPR);
       loaderHint.textContent='Preparing the invitation experience…';const[sealTrigger,mainMenu,galleryClose,exitExplore]=await Promise.all([waitForElement('seal-trigger'),waitForElement('main-menu'),waitForElement('gallery-close'),waitForElement('exit-explore')]);
-      const flightCamera=app.findObjectByName('Website Flight Camera');let invitationPose=null;
-      const captureInvitationPose=()=>{if(!flightCamera)return;invitationPose={position:cloneVector(flightCamera.position),rotation:cloneVector(flightCamera.rotation)};document.body.dataset.invitationPose='ready';syncPremiumActions()};
+      const flightCamera=app.findObjectByName('Website Flight Camera');let invitationPose=null;let openingStarted=0;sealTrigger.addEventListener('click',()=>{if(!openingStarted){openingStarted=performance.now();perfStats.openingStartedMs=Math.round(openingStarted)}},{capture:true,once:true});
+      const captureInvitationPose=()=>{if(opening){opening=false;perfStats.openingMs=openingStarted?Math.round(performance.now()-openingStarted):null;try{app.renderMode='auto'}catch(_){}}if(!flightCamera)return;invitationPose={position:cloneVector(flightCamera.position),rotation:cloneVector(flightCamera.rotation)};document.body.dataset.invitationPose='ready';syncPremiumActions()};
       installPremiumSceneStyles();window.addEventListener('baby-kamkam-opening-complete',captureInvitationPose,{once:true});document.getElementById('explore-button')?.addEventListener('click',captureInvitationPose,true);document.getElementById('gallery-button')?.addEventListener('click',captureInvitationPose,true);installReturnDelegation(flightCamera,()=>invitationPose);
       const observed=[mainMenu,document.getElementById('modal-backdrop'),document.getElementById('gallery-controls'),exitExplore].filter(Boolean),observer=new MutationObserver(()=>{if(!invitationPose&&!mainMenu.classList.contains('hidden'))captureInvitationPose();else syncPremiumActions()});observed.forEach(element=>observer.observe(element,{attributes:true,attributeFilter:['class']}));
       document.body.classList.add('scene-ready');
@@ -121,9 +121,9 @@
       detailsOverlay.addEventListener('click',event=>{if(event.target===detailsOverlay){detailsOverlay.classList.add('premium-hidden');syncPremiumActions()}});
       document.getElementById('copy-details').addEventListener('click',async()=>{const text='Anaya Kamsiyochukwu’s Child Dedication — Sunday, 13 December 2026 at 2:00 PM. K’ville, No. 16 Ituku Street, Upper Chime, New Haven. #BabyKamkam';try{await navigator.clipboard.writeText(text);showToast('Event details copied')}catch(_){showToast('Press and hold to copy the details')}});
       document.getElementById('share-button').addEventListener('click',async()=>{const data={title:'Anaya Kamsiyochukwu’s Child Dedication',text:'Join us on Sunday, 13 December 2026 at 2:00 PM. #BabyKamkam',url:location.origin+location.pathname};try{if(navigator.share)await navigator.share(data);else{await navigator.clipboard.writeText(data.url);showToast('Invitation link copied')}}catch(error){if(error?.name!=='AbortError')showToast('Unable to share right now')}});
-      await warmScene();loaderHint.textContent='Your invitation is ready.';app.renderMode='auto';document.body.classList.remove('scene-loading');window.babyKamkamLoading.ready();unlocked=true;perfStats.readyMs=Math.round(performance.now());monitorPerformance();
+      await warmScene();loaderHint.textContent='Your invitation is ready.';document.body.classList.remove('scene-loading');window.babyKamkamLoading.ready();unlocked=true;perfStats.readyMs=Math.round(performance.now());monitorPerformance();
     }catch(error){console.error('Failed to load Spline scene:',error);window.babyKamkamLoading.fail()}
-    let resizeTimer;addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>applyQuality(activeDPR),150)},{passive:true});
+    let resizeTimer;addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(!opening)applyQuality(activeDPR)},150)},{passive:true});
   </script>
 </body>
 </html>
