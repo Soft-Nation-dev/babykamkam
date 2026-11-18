@@ -39,12 +39,12 @@
       <p class="loader__brand">Baby Kamkam</p>
       <p class="loader__text" id="loader-message" aria-hidden="true">Little hands. Endless blessings.</p>
       <div class="loader__track" aria-hidden="true"></div>
-      <p class="loader__hint" id="loader-hint" role="status" aria-live="polite">Preparing your experience…</p>
-      <button class="loader__retry" id="loader-retry" type="button" hidden>Try again</button>
+      <p class="loader__hint" id="loader-hint" role="status" aria-live="polite">Connecting to your invitation…</p>
+
     </div><div class="loader__signature">With love, the Asogwa family</div>
   </div>
   <script>
-  (()=>{const loader=document.getElementById("loader"),message=document.getElementById("loader-message"),hint=document.getElementById("loader-hint"),retry=document.getElementById("loader-retry");const phrases=["Little hands. Endless blessings.","A tiny miracle. A lifetime of love.","Every blessing has a beautiful story.","Some moments are worth celebrating forever.","Made with love, wrapped in grace."];let index=0,fade=0,finished=false;const cycle=setInterval(()=>{message.classList.add("is-changing");fade=setTimeout(()=>{message.textContent=phrases[++index%phrases.length];message.classList.remove("is-changing")},280)},3200);const slow=setTimeout(()=>{hint.textContent="Still preparing your experience…";retry.hidden=false},20000);const stop=()=>{clearInterval(cycle);clearTimeout(fade);clearTimeout(slow)};retry.addEventListener("click",()=>location.reload());window.babyKamkamLoading={ready(){if(finished)return;finished=true;stop();loader.setAttribute("aria-busy","false");loader.classList.add("is-hidden");loader.inert=true;loader.setAttribute("aria-hidden","true")},fail(){if(finished)return;finished=true;stop();loader.setAttribute("aria-busy","false");loader.classList.add("is-error");message.classList.remove("is-changing");message.textContent="A little moment longer.";hint.textContent="We could not load the invitation. Please try again.";retry.hidden=false}};})();
+  (()=>{const loader=document.getElementById("loader"),message=document.getElementById("loader-message"),hint=document.getElementById("loader-hint");const phrases=["Little hands. Endless blessings.","A tiny miracle. A lifetime of love.","Every blessing has a beautiful story.","Some moments are worth celebrating forever.","Made with love, wrapped in grace."];let index=0,fade=0,finished=false;const cycle=setInterval(()=>{message.classList.add("is-changing");fade=setTimeout(()=>{message.textContent=phrases[++index%phrases.length];message.classList.remove("is-changing")},280)},3200);const stop=()=>{clearInterval(cycle);clearTimeout(fade)};window.babyKamkamLoading={ready(){if(finished)return;finished=true;stop();loader.setAttribute("aria-busy","false");loader.classList.add("is-hidden");loader.inert=true;loader.setAttribute("aria-hidden","true")},fail(){if(finished)return;finished=true;stop();loader.setAttribute("aria-busy","false");loader.classList.add("is-error");message.classList.remove("is-changing");message.textContent="A little moment longer.";hint.textContent="The invitation could not be loaded. Please refresh when your connection is available."}};})();
   </script>
   <canvas id="canvas3d" aria-label="Interactive 3D child dedication invitation"></canvas>
   <nav class="premium-actions premium-hidden" id="premium-actions" aria-label="More invitation actions"><button id="details-button" type="button">Details</button><button id="share-button" type="button" aria-label="Share invitation">Share</button></nav>
@@ -73,7 +73,7 @@
     let app;try{app=new Application(canvas,{htmlContentMode:'inline',renderMode:'continuous'})}catch(error){window.babyKamkamLoading.fail();throw error}globalThis.babyKamkamApp=app;
     function applyQuality(value){const renderer=app._renderer;if(!renderer||typeof renderer.setPixelRatio!=='function')return false;const next=Math.max(.8,Math.min(maxDPR,value));try{renderer.setPixelRatio(next);activeDPR=next;perfStats.pixelRatio=next;app.requestRender?.();return true}catch(_){return false}}
     function monitorPerformance(){let previous=0,samples=[],bad=0,good=0,lastChange=performance.now();function tick(now){if(document.hidden){previous=0;samples=[];bad=good=0}else if(previous){const dt=now-previous;if(dt>0&&dt<250)samples.push(dt);if(samples.length>=120){samples.sort((a,b)=>a-b);const median=samples[Math.floor(samples.length*.5)],p90=samples[Math.floor(samples.length*.9)];perfStats.frameIntervalMs=Math.round(p90*10)/10;samples=[];bad=p90>34?bad+1:0;good=p90<19&&median<18?good+1:0;if(now-lastChange>6500){let next=activeDPR;if(bad>=2)next=Math.max(.85,activeDPR-.15);else if(good>=3)next=Math.min(maxDPR,activeDPR+.15);if(Math.abs(next-activeDPR)>.04&&applyQuality(next)){perfStats.adjustments++;lastChange=now;bad=good=0}}}}previous=document.hidden?0:now;requestAnimationFrame(tick)}requestAnimationFrame(tick)}
-    const waitForElement=(id,timeout=5000)=>new Promise((resolve,reject)=>{const started=performance.now();const check=()=>{const element=document.getElementById(id);if(element)return resolve(element);if(performance.now()-started>timeout)return reject(new Error(`Missing interface element: ${id}`));requestAnimationFrame(check)};check()});
+    const waitForElement=(id)=>new Promise((resolve,reject)=>{const started=performance.now();const check=()=>{const element=document.getElementById(id);if(element)return resolve(element);requestAnimationFrame(check)};check()});
     const cloneVector=value=>({x:Number(value.x),y:Number(value.y),z:Number(value.z)}),ease=value=>1-Math.pow(1-value,4),wrapAngle=degrees=>((degrees+540)%360)-180;
     const showToast=message=>{clearTimeout(toastTimer);toast.textContent=message;toast.classList.add('is-visible');toastTimer=setTimeout(()=>toast.classList.remove('is-visible'),2200)};
     function installPremiumSceneStyles(){const style=document.createElement('style');style.id='premium-scene-ui';style.textContent=`
@@ -89,28 +89,28 @@
     function installReturnDelegation(camera,getPose){let allowNative=false;document.addEventListener('click',event=>{const button=event.target.closest?.('#exit-explore,#gallery-close');if(!button)return;if(allowNative){allowNative=false;return}const pose=getPose();if(!pose)return;event.preventDefault();event.stopImmediatePropagation();button.disabled=true;button.style.opacity='.58';animateReturn(camera,pose,matchMedia('(prefers-reduced-motion:reduce)').matches?80:1250,()=>{button.disabled=false;button.style.opacity='';allowNative=true;button.click()})},true)}
     function syncPremiumActions(){const main=document.getElementById('main-menu'),rsvp=document.getElementById('modal-backdrop'),gallery=document.getElementById('gallery-controls'),exploreExit=document.getElementById('exit-explore');const visible=main&&!main.classList.contains('hidden')&&(!rsvp||rsvp.classList.contains('hidden'))&&(!gallery||gallery.classList.contains('hidden'))&&(!exploreExit||exploreExit.classList.contains('hidden'))&&detailsOverlay.classList.contains('premium-hidden');premiumActions.classList.toggle('premium-hidden',!visible)}
     async function warmScene(){
-      loaderHint.textContent='Finishing the details…';
-      const start=performance.now(),deadline=start+60000;
+      loaderHint.textContent='Bringing the details to life…';
+      
       let lastActivity=performance.now(),observer,resourceObserver;
       const nextFrame=()=>new Promise(resolve=>requestAnimationFrame(resolve));
       const mark=()=>{lastActivity=performance.now()};
       try{resourceObserver=new PerformanceObserver(list=>{if(list.getEntries().some(e=>!e.name.includes('favicon')))mark()});resourceObserver.observe({entryTypes:['resource']})}catch(_){}
       try{observer=new MutationObserver(records=>{if(records.some(r=>r.target instanceof HTMLImageElement||Array.from(r.addedNodes).some(n=>n instanceof HTMLImageElement||n.querySelector?.('img'))))mark()});observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['src']});
       const pics=['baby-ceremony.webp','baby-joyful.webp','baby-primary.webp','baby-soft.webp','invitation-v1-web.jpg'];const decoded=Promise.all(pics.map(async name=>{const image=new Image();image.src='./assets/'+name;await image.decode()}));
-      const timed=promise=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error('Scene preparation timed out')),Math.max(0,deadline-performance.now())))]);
-      await timed(decoded);if(document.fonts)await timed(document.fonts.ready);
+      const timed=promise=>promise;
+      await timed(decoded);if(document.fonts)await timed(document.fonts.ready);loaderHint.textContent='Finishing the visual details…';
       const renderer=app._renderer;const device=renderer?.backend?.device;
       let frames=0,stable=0;let previous=performance.now();mark();
-      while(performance.now()<deadline){app.requestRender?.();const now=await timed(nextFrame());const dt=now-previous;previous=now;if(document.hidden){stable=0;continue}frames++;stable=dt<100?stable+1:0;
+      while(true){app.requestRender?.();const now=await timed(nextFrame());const dt=now-previous;previous=now;if(document.hidden){stable=0;continue}frames++;stable=dt<100?stable+1:0;
         const pendingImages=Array.from(document.images).some(img=>!img.complete);
         const pendingPrograms=renderer?.info?.programs?.some?.(program=>typeof program.isReady==='function'&&!program.isReady());
         if(frames>=45&&stable>=20&&!pendingImages&&!pendingPrograms&&now-lastActivity>=1800){if(device?.queue?.onSubmittedWorkDone)await timed(device.queue.onSubmittedWorkDone());await timed(nextFrame());if(performance.now()-lastActivity>=1800)return}
-      }throw new Error('Scene did not settle');
+      }
       }finally{observer?.disconnect();resourceObserver?.disconnect()}
     }
     try{
-      await app.load('./assets/scene.splinecode',undefined,{credentials:'same-origin',mode:'cors'});perfStats.loadMs=Math.round(performance.now()-bootStarted);applyQuality(activeDPR);
-      const[sealTrigger,mainMenu,galleryClose,exitExplore]=await Promise.all([waitForElement('seal-trigger'),waitForElement('main-menu'),waitForElement('gallery-close'),waitForElement('exit-explore')]);
+      loaderHint.textContent='Loading the 3D environment…';await app.load('./assets/scene.splinecode',undefined,{credentials:'same-origin',mode:'cors'});perfStats.loadMs=Math.round(performance.now()-bootStarted);applyQuality(activeDPR);
+      loaderHint.textContent='Preparing the invitation experience…';const[sealTrigger,mainMenu,galleryClose,exitExplore]=await Promise.all([waitForElement('seal-trigger'),waitForElement('main-menu'),waitForElement('gallery-close'),waitForElement('exit-explore')]);
       const flightCamera=app.findObjectByName('Website Flight Camera');let invitationPose=null;
       const captureInvitationPose=()=>{if(!flightCamera)return;invitationPose={position:cloneVector(flightCamera.position),rotation:cloneVector(flightCamera.rotation)};document.body.dataset.invitationPose='ready';syncPremiumActions()};
       installPremiumSceneStyles();window.addEventListener('baby-kamkam-opening-complete',captureInvitationPose,{once:true});document.getElementById('explore-button')?.addEventListener('click',captureInvitationPose,true);document.getElementById('gallery-button')?.addEventListener('click',captureInvitationPose,true);installReturnDelegation(flightCamera,()=>invitationPose);
@@ -121,7 +121,7 @@
       detailsOverlay.addEventListener('click',event=>{if(event.target===detailsOverlay){detailsOverlay.classList.add('premium-hidden');syncPremiumActions()}});
       document.getElementById('copy-details').addEventListener('click',async()=>{const text='Anaya Kamsiyochukwu’s Child Dedication — Sunday, 13 December 2026 at 2:00 PM. K’ville, No. 16 Ituku Street, Upper Chime, New Haven. #BabyKamkam';try{await navigator.clipboard.writeText(text);showToast('Event details copied')}catch(_){showToast('Press and hold to copy the details')}});
       document.getElementById('share-button').addEventListener('click',async()=>{const data={title:'Anaya Kamsiyochukwu’s Child Dedication',text:'Join us on Sunday, 13 December 2026 at 2:00 PM. #BabyKamkam',url:location.origin+location.pathname};try{if(navigator.share)await navigator.share(data);else{await navigator.clipboard.writeText(data.url);showToast('Invitation link copied')}}catch(error){if(error?.name!=='AbortError')showToast('Unable to share right now')}});
-      await warmScene();app.renderMode='auto';document.body.classList.remove('scene-loading');window.babyKamkamLoading.ready();unlocked=true;perfStats.readyMs=Math.round(performance.now());monitorPerformance();
+      await warmScene();loaderHint.textContent='Your invitation is ready.';app.renderMode='auto';document.body.classList.remove('scene-loading');window.babyKamkamLoading.ready();unlocked=true;perfStats.readyMs=Math.round(performance.now());monitorPerformance();
     }catch(error){console.error('Failed to load Spline scene:',error);window.babyKamkamLoading.fail()}
     let resizeTimer;addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>applyQuality(activeDPR),150)},{passive:true});
   </script>
