@@ -10,7 +10,7 @@
   <meta property="og:image" content="assets/baby-primary.webp">
   <link rel="preconnect" href="https://cdn.spline.design" crossorigin>
   <link rel="modulepreload" href="https://cdn.spline.design/@splinetool/runtime@2.0.186/build/runtime.js" crossorigin>
-  <link rel="preload" href="assets/scene.splinecode" as="fetch" crossorigin>
+  <link rel="preload" href="assets/scene.splinecode" as="fetch" crossorigin fetchpriority="high">
   <title>Baby Kam Kam — 3D Invitation</title>
   <style>
     :root{color-scheme:dark;--wine950:#21070e;--wine900:#2a0d12;--cream:#fff8ed;--gold:#ddb95f;--safe-bottom:max(16px,env(safe-area-inset-bottom))}
@@ -60,12 +60,17 @@
     const isMobilePreview=new URLSearchParams(location.search).has('mobile-preview');
     const isMobile=isMobilePreview||/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)||innerWidth<768;
     const lowPower=isMobile&&typeof navigator.deviceMemory==='number'&&navigator.deviceMemory<=4;
-    const maxDPR=isMobile?1:1.4;
+    const nativeDPR=window.devicePixelRatio||1;
+    const maxDPR=Math.min(nativeDPR,isMobile?Math.min(1.6,Math.sqrt(1100000/(innerWidth*innerHeight))):Math.min(1.75,Math.sqrt(3200000/(innerWidth*innerHeight))));
+    let activeDPR=Math.min(maxDPR,isMobile?1:1.4);
+    const perfStats=window.babyKamkamPerformance={loadMs:null,readyMs:null,frameIntervalMs:null,pixelRatio:activeDPR,adjustments:0};const bootStarted=performance.now();
     const canvas=document.getElementById('canvas3d'),loader=document.getElementById('loader'),loaderHint=document.getElementById('loader-hint'),premiumActions=document.getElementById('premium-actions'),detailsOverlay=document.getElementById('details-overlay'),toast=document.getElementById('site-toast');
     let toastTimer=0;
-    try{if(devicePixelRatio>maxDPR)Object.defineProperty(window,'devicePixelRatio',{get:()=>maxDPR,configurable:true})}catch(_){}
+    // Leave the browser's native devicePixelRatio untouched.
     document.documentElement.classList.toggle('low-power',lowPower);
-    let app;try{app=new Application(canvas,{htmlContentMode:'inline'})}catch(error){window.babyKamkamLoading.fail();throw error}globalThis.babyKamkamApp=app;
+    let app;try{app=new Application(canvas,{htmlContentMode:'inline',renderMode:'auto'})}catch(error){window.babyKamkamLoading.fail();throw error}globalThis.babyKamkamApp=app;
+    function applyQuality(value){const renderer=app._renderer;if(!renderer||typeof renderer.setPixelRatio!=='function')return false;const next=Math.max(.8,Math.min(maxDPR,value));try{renderer.setPixelRatio(next);activeDPR=next;perfStats.pixelRatio=next;app.requestRender?.();return true}catch(_){return false}}
+    function monitorPerformance(){let previous=0,samples=[],bad=0,good=0,lastChange=performance.now();function tick(now){if(document.hidden){previous=0;samples=[];bad=good=0}else if(previous){const dt=now-previous;if(dt>0&&dt<250)samples.push(dt);if(samples.length>=120){samples.sort((a,b)=>a-b);const median=samples[Math.floor(samples.length*.5)],p90=samples[Math.floor(samples.length*.9)];perfStats.frameIntervalMs=Math.round(p90*10)/10;samples=[];bad=p90>34?bad+1:0;good=p90<19&&median<18?good+1:0;if(now-lastChange>6500){let next=activeDPR;if(bad>=2)next=Math.max(.85,activeDPR-.15);else if(good>=3)next=Math.min(maxDPR,activeDPR+.15);if(Math.abs(next-activeDPR)>.04&&applyQuality(next)){perfStats.adjustments++;lastChange=now;bad=good=0}}}}previous=document.hidden?0:now;requestAnimationFrame(tick)}requestAnimationFrame(tick)}
     const waitForElement=(id,timeout=5000)=>new Promise((resolve,reject)=>{const started=performance.now();const check=()=>{const element=document.getElementById(id);if(element)return resolve(element);if(performance.now()-started>timeout)return reject(new Error(`Missing interface element: ${id}`));requestAnimationFrame(check)};check()});
     const cloneVector=value=>({x:Number(value.x),y:Number(value.y),z:Number(value.z)}),ease=value=>1-Math.pow(1-value,4),wrapAngle=degrees=>((degrees+540)%360)-180;
     const showToast=message=>{clearTimeout(toastTimer);toast.textContent=message;toast.classList.add('is-visible');toastTimer=setTimeout(()=>toast.classList.remove('is-visible'),2200)};
@@ -77,12 +82,12 @@
       #rsvp-card{background:linear-gradient(155deg,rgba(111,38,61,.94),rgba(42,13,18,.94))!important;border:1px solid rgba(255,248,239,.32)!important;box-shadow:0 28px 80px rgba(17,3,8,.46)!important}#rsvp-card input,#rsvp-card select{background:rgba(255,248,239,.10)!important}
       @media(max-width:420px){#main-menu{bottom:max(10px,env(safe-area-inset-bottom))!important}#main-menu button{min-height:50px!important;padding:0 5px!important;font-size:12px!important}}
     `;document.head.appendChild(style)}
-    function animateReturn(camera,pose,duration,onComplete){if(!camera||!pose)return onComplete();const fromPosition=cloneVector(camera.position),fromRotation=cloneVector(camera.rotation),started=performance.now();const frame=now=>{const progress=Math.min(1,(now-started)/duration),t=ease(progress);camera.position.x=fromPosition.x+(pose.position.x-fromPosition.x)*t;camera.position.y=fromPosition.y+(pose.position.y-fromPosition.y)*t;camera.position.z=fromPosition.z+(pose.position.z-fromPosition.z)*t;camera.rotation.x=fromRotation.x+wrapAngle(pose.rotation.x-fromRotation.x)*t;camera.rotation.y=fromRotation.y+wrapAngle(pose.rotation.y-fromRotation.y)*t;camera.rotation.z=fromRotation.z+wrapAngle(pose.rotation.z-fromRotation.z)*t;if(progress<1)requestAnimationFrame(frame);else onComplete()};requestAnimationFrame(frame)}
+    function animateReturn(camera,pose,duration,onComplete){if(!camera||!pose)return onComplete();const fromPosition=cloneVector(camera.position),fromRotation=cloneVector(camera.rotation),started=performance.now();const frame=now=>{const progress=Math.min(1,(now-started)/duration),t=ease(progress);camera.position.x=fromPosition.x+(pose.position.x-fromPosition.x)*t;camera.position.y=fromPosition.y+(pose.position.y-fromPosition.y)*t;camera.position.z=fromPosition.z+(pose.position.z-fromPosition.z)*t;camera.rotation.x=fromRotation.x+wrapAngle(pose.rotation.x-fromRotation.x)*t;camera.rotation.y=fromRotation.y+wrapAngle(pose.rotation.y-fromRotation.y)*t;camera.rotation.z=fromRotation.z+wrapAngle(pose.rotation.z-fromRotation.z)*t;app.requestRender?.();if(progress<1)requestAnimationFrame(frame);else onComplete()};requestAnimationFrame(frame)}
     function interceptReturn(button,camera,getPose){if(!button)return;let allowNative=false;button.addEventListener('click',event=>{if(allowNative){allowNative=false;return}const pose=getPose();if(!pose)return;event.preventDefault();event.stopImmediatePropagation();button.disabled=true;button.style.opacity='.58';animateReturn(camera,pose,matchMedia('(prefers-reduced-motion:reduce)').matches?80:1250,()=>{button.disabled=false;button.style.opacity='';allowNative=true;button.click()})},true)}
     function installReturnDelegation(camera,getPose){let allowNative=false;document.addEventListener('click',event=>{const button=event.target.closest?.('#exit-explore,#gallery-close');if(!button)return;if(allowNative){allowNative=false;return}const pose=getPose();if(!pose)return;event.preventDefault();event.stopImmediatePropagation();button.disabled=true;button.style.opacity='.58';animateReturn(camera,pose,matchMedia('(prefers-reduced-motion:reduce)').matches?80:1250,()=>{button.disabled=false;button.style.opacity='';allowNative=true;button.click()})},true)}
     function syncPremiumActions(){const main=document.getElementById('main-menu'),rsvp=document.getElementById('modal-backdrop'),gallery=document.getElementById('gallery-controls'),exploreExit=document.getElementById('exit-explore');const visible=main&&!main.classList.contains('hidden')&&(!rsvp||rsvp.classList.contains('hidden'))&&(!gallery||gallery.classList.contains('hidden'))&&(!exploreExit||exploreExit.classList.contains('hidden'))&&detailsOverlay.classList.contains('premium-hidden');premiumActions.classList.toggle('premium-hidden',!visible)}
     try{
-      await app.load('./assets/scene.splinecode');if(app._renderer)app._renderer.setPixelRatio(Math.min(devicePixelRatio||1,maxDPR));
+      await app.load('./assets/scene.splinecode');perfStats.loadMs=Math.round(performance.now()-bootStarted);applyQuality(activeDPR);
       const[sealTrigger,mainMenu,galleryClose,exitExplore]=await Promise.all([waitForElement('seal-trigger'),waitForElement('main-menu'),waitForElement('gallery-close'),waitForElement('exit-explore')]);
       const flightCamera=app.findObjectByName('Website Flight Camera');let invitationPose=null;
       const captureInvitationPose=()=>{if(!flightCamera)return;invitationPose={position:cloneVector(flightCamera.position),rotation:cloneVector(flightCamera.rotation)};document.body.dataset.invitationPose='ready';syncPremiumActions()};
@@ -94,9 +99,9 @@
       detailsOverlay.addEventListener('click',event=>{if(event.target===detailsOverlay){detailsOverlay.classList.add('premium-hidden');syncPremiumActions()}});
       document.getElementById('copy-details').addEventListener('click',async()=>{const text='Anaya Kamsiyochukwu’s Child Dedication — Sunday, 13 December 2026 at 2:00 PM. K’ville, No. 16 Ituku Street, Upper Chime, New Haven. #BabyKamkam';try{await navigator.clipboard.writeText(text);showToast('Event details copied')}catch(_){showToast('Press and hold to copy the details')}});
       document.getElementById('share-button').addEventListener('click',async()=>{const data={title:'Anaya Kamsiyochukwu’s Child Dedication',text:'Join us on Sunday, 13 December 2026 at 2:00 PM. #BabyKamkam',url:location.origin+location.pathname};try{if(navigator.share)await navigator.share(data);else{await navigator.clipboard.writeText(data.url);showToast('Invitation link copied')}}catch(error){if(error?.name!=='AbortError')showToast('Unable to share right now')}});
-      await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));window.babyKamkamLoading.ready();
+      await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));window.babyKamkamLoading.ready();perfStats.readyMs=Math.round(performance.now());monitorPerformance();
     }catch(error){console.error('Failed to load Spline scene:',error);window.babyKamkamLoading.fail()}
-    addEventListener('resize',()=>{if(app._renderer)app._renderer.setPixelRatio(Math.min(devicePixelRatio||1,maxDPR))},{passive:true});
+    let resizeTimer;addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>applyQuality(activeDPR),150)},{passive:true});
   </script>
 </body>
 </html>
