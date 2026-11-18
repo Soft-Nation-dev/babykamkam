@@ -26,19 +26,21 @@
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
     @supports not ((backdrop-filter:blur(2px)) or (-webkit-backdrop-filter:blur(2px))){.premium-actions,.details-overlay{-webkit-backdrop-filter:none;backdrop-filter:none}.premium-actions{background:rgba(76,31,47,.94)}}
     .premium-actions,.details-overlay{pointer-events:auto}
+    /* Editorial loading screen, independent of the interactive scene */
+    .loader{background:#fff;color:#701d38;color-scheme:light}.loader::before{display:none}.loader::after{inset:16px;border-radius:0;border:1px solid #e6d9c5;box-shadow:none}.loader__content{width:min(86vw,470px)}.loader__eyebrow{display:none}.loader__mark{display:none}.loader__brand{font-size:10px;letter-spacing:.35em;color:#701d38;margin:0 0 36px}.loader__text{color:#65192f;font-size:clamp(28px,6.5vw,42px);font-weight:400;min-height:3em;line-height:1.22}.loader__track{width:108px;background:#eee3e6;margin:28px auto 16px;height:2px}.loader__track::after{background:#701d38;animation-duration:2.4s}.loader__hint{color:#89757a;font-size:10px;letter-spacing:.14em;text-transform:uppercase}.loader__retry{border-color:#701d38;color:#701d38}.loader__signature{position:absolute;bottom:max(40px,env(safe-area-inset-bottom));left:20px;right:20px;text-align:center;color:#927751;font-size:9px;letter-spacing:.18em;text-transform:uppercase}
   </style>
 </head>
 <body>
   <div class="loader" id="loader" aria-busy="true">
     <div class="loader__content">
       <p class="loader__eyebrow">An invitation from the Asogwa family</p>
-      <div class="loader__mark" aria-hidden="true"><span class="loader__orbit"></span>BK</div>
+      
       <p class="loader__brand">Baby Kamkam</p>
       <p class="loader__text" id="loader-message" aria-hidden="true">Little hands. Endless blessings.</p>
       <div class="loader__track" aria-hidden="true"></div>
       <p class="loader__hint" id="loader-hint" role="status" aria-live="polite">Preparing your experience…</p>
       <button class="loader__retry" id="loader-retry" type="button" hidden>Try again</button>
-    </div>
+    </div><div class="loader__signature">With love, the Asogwa family</div>
   </div>
   <script>
   (()=>{const loader=document.getElementById("loader"),message=document.getElementById("loader-message"),hint=document.getElementById("loader-hint"),retry=document.getElementById("loader-retry");const phrases=["Little hands. Endless blessings.","A tiny miracle. A lifetime of love.","Every blessing has a beautiful story.","Some moments are worth celebrating forever.","Made with love, wrapped in grace."];let index=0,fade=0,finished=false;const cycle=setInterval(()=>{message.classList.add("is-changing");fade=setTimeout(()=>{message.textContent=phrases[++index%phrases.length];message.classList.remove("is-changing")},280)},3200);const slow=setTimeout(()=>{hint.textContent="Still preparing your experience…";retry.hidden=false},20000);const stop=()=>{clearInterval(cycle);clearTimeout(fade);clearTimeout(slow)};retry.addEventListener("click",()=>location.reload());window.babyKamkamLoading={ready(){if(finished)return;finished=true;stop();loader.setAttribute("aria-busy","false");loader.classList.add("is-hidden");loader.inert=true;loader.setAttribute("aria-hidden","true")},fail(){if(finished)return;finished=true;stop();loader.setAttribute("aria-busy","false");loader.classList.add("is-error");message.classList.remove("is-changing");message.textContent="A little moment longer.";hint.textContent="We could not load the invitation. Please try again.";retry.hidden=false}};})();
