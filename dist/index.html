@@ -28,9 +28,10 @@
     .premium-actions,.details-overlay{pointer-events:auto}
     /* Editorial loading screen, independent of the interactive scene */
     .loader{background:#fff;color:#701d38;color-scheme:light}.loader::before{display:none}.loader::after{inset:16px;border-radius:0;border:1px solid #e6d9c5;box-shadow:none}.loader__content{width:min(86vw,470px)}.loader__eyebrow{display:none}.loader__mark{display:none}.loader__brand{font-size:10px;letter-spacing:.35em;color:#701d38;margin:0 0 36px}.loader__text{color:#65192f;font-size:clamp(28px,6.5vw,42px);font-weight:400;min-height:3em;line-height:1.22}.loader__track{width:108px;background:#eee3e6;margin:28px auto 16px;height:2px}.loader__track::after{background:#701d38;animation-duration:2.4s}.loader__hint{color:#89757a;font-size:10px;letter-spacing:.14em;text-transform:uppercase}.loader__retry{border-color:#701d38;color:#701d38}.loader__signature{position:absolute;bottom:max(40px,env(safe-area-inset-bottom));left:20px;right:20px;text-align:center;color:#927751;font-size:9px;letter-spacing:.18em;text-transform:uppercase}
+    body.scene-loading #canvas3d{pointer-events:none!important}body.scene-loading #seal-trigger{pointer-events:none!important}body.scene-loading .loader{z-index:2147483647!important;isolation:isolate}body.scene-loading #canvas3d{opacity:1;transition:none}body.scene-loading .premium-actions{visibility:hidden!important}
   </style>
 </head>
-<body>
+<body class="scene-loading">
   <div class="loader" id="loader" aria-busy="true">
     <div class="loader__content">
       <p class="loader__eyebrow">An invitation from the Asogwa family</p>
@@ -56,6 +57,7 @@
   <div class="site-toast" id="site-toast" role="status" aria-live="polite"></div>
 
   <script type="module">
+    let unlocked=false;const blockInteraction=event=>{if(!unlocked&&!event.target?.closest?.("#loader")){event.preventDefault();event.stopImmediatePropagation()}};for(const name of ["pointerdown","pointerup","click","touchstart","touchend","keydown","wheel"])window.addEventListener(name,blockInteraction,{capture:true,passive:false});
     let Application;try{({Application}=await import('https://cdn.spline.design/@splinetool/runtime@2.0.186/build/runtime.js'))}catch(error){window.babyKamkamLoading.fail();throw error}
     const isMobilePreview=new URLSearchParams(location.search).has('mobile-preview');
     const isMobile=isMobilePreview||/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)||innerWidth<768;
@@ -68,7 +70,7 @@
     let toastTimer=0;
     // Leave the browser's native devicePixelRatio untouched.
     document.documentElement.classList.toggle('low-power',lowPower);
-    let app;try{app=new Application(canvas,{htmlContentMode:'inline',renderMode:'auto'})}catch(error){window.babyKamkamLoading.fail();throw error}globalThis.babyKamkamApp=app;
+    let app;try{app=new Application(canvas,{htmlContentMode:'inline',renderMode:'continuous'})}catch(error){window.babyKamkamLoading.fail();throw error}globalThis.babyKamkamApp=app;
     function applyQuality(value){const renderer=app._renderer;if(!renderer||typeof renderer.setPixelRatio!=='function')return false;const next=Math.max(.8,Math.min(maxDPR,value));try{renderer.setPixelRatio(next);activeDPR=next;perfStats.pixelRatio=next;app.requestRender?.();return true}catch(_){return false}}
     function monitorPerformance(){let previous=0,samples=[],bad=0,good=0,lastChange=performance.now();function tick(now){if(document.hidden){previous=0;samples=[];bad=good=0}else if(previous){const dt=now-previous;if(dt>0&&dt<250)samples.push(dt);if(samples.length>=120){samples.sort((a,b)=>a-b);const median=samples[Math.floor(samples.length*.5)],p90=samples[Math.floor(samples.length*.9)];perfStats.frameIntervalMs=Math.round(p90*10)/10;samples=[];bad=p90>34?bad+1:0;good=p90<19&&median<18?good+1:0;if(now-lastChange>6500){let next=activeDPR;if(bad>=2)next=Math.max(.85,activeDPR-.15);else if(good>=3)next=Math.min(maxDPR,activeDPR+.15);if(Math.abs(next-activeDPR)>.04&&applyQuality(next)){perfStats.adjustments++;lastChange=now;bad=good=0}}}}previous=document.hidden?0:now;requestAnimationFrame(tick)}requestAnimationFrame(tick)}
     const waitForElement=(id,timeout=5000)=>new Promise((resolve,reject)=>{const started=performance.now();const check=()=>{const element=document.getElementById(id);if(element)return resolve(element);if(performance.now()-started>timeout)return reject(new Error(`Missing interface element: ${id}`));requestAnimationFrame(check)};check()});
@@ -86,8 +88,28 @@
     function interceptReturn(button,camera,getPose){if(!button)return;let allowNative=false;button.addEventListener('click',event=>{if(allowNative){allowNative=false;return}const pose=getPose();if(!pose)return;event.preventDefault();event.stopImmediatePropagation();button.disabled=true;button.style.opacity='.58';animateReturn(camera,pose,matchMedia('(prefers-reduced-motion:reduce)').matches?80:1250,()=>{button.disabled=false;button.style.opacity='';allowNative=true;button.click()})},true)}
     function installReturnDelegation(camera,getPose){let allowNative=false;document.addEventListener('click',event=>{const button=event.target.closest?.('#exit-explore,#gallery-close');if(!button)return;if(allowNative){allowNative=false;return}const pose=getPose();if(!pose)return;event.preventDefault();event.stopImmediatePropagation();button.disabled=true;button.style.opacity='.58';animateReturn(camera,pose,matchMedia('(prefers-reduced-motion:reduce)').matches?80:1250,()=>{button.disabled=false;button.style.opacity='';allowNative=true;button.click()})},true)}
     function syncPremiumActions(){const main=document.getElementById('main-menu'),rsvp=document.getElementById('modal-backdrop'),gallery=document.getElementById('gallery-controls'),exploreExit=document.getElementById('exit-explore');const visible=main&&!main.classList.contains('hidden')&&(!rsvp||rsvp.classList.contains('hidden'))&&(!gallery||gallery.classList.contains('hidden'))&&(!exploreExit||exploreExit.classList.contains('hidden'))&&detailsOverlay.classList.contains('premium-hidden');premiumActions.classList.toggle('premium-hidden',!visible)}
+    async function warmScene(){
+      loaderHint.textContent='Finishing the details…';
+      const start=performance.now(),deadline=start+60000;
+      let lastActivity=performance.now(),observer,resourceObserver;
+      const nextFrame=()=>new Promise(resolve=>requestAnimationFrame(resolve));
+      const mark=()=>{lastActivity=performance.now()};
+      try{resourceObserver=new PerformanceObserver(list=>{if(list.getEntries().some(e=>!e.name.includes('favicon')))mark()});resourceObserver.observe({entryTypes:['resource']})}catch(_){}
+      try{observer=new MutationObserver(records=>{if(records.some(r=>r.target instanceof HTMLImageElement||Array.from(r.addedNodes).some(n=>n instanceof HTMLImageElement||n.querySelector?.('img'))))mark()});observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['src']});
+      const pics=['baby-ceremony.webp','baby-joyful.webp','baby-primary.webp','baby-soft.webp','invitation-v1-web.jpg'];const decoded=Promise.all(pics.map(async name=>{const image=new Image();image.src='./assets/'+name;await image.decode()}));
+      const timed=promise=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error('Scene preparation timed out')),Math.max(0,deadline-performance.now())))]);
+      await timed(decoded);if(document.fonts)await timed(document.fonts.ready);
+      const renderer=app._renderer;const device=renderer?.backend?.device;
+      let frames=0,stable=0;let previous=performance.now();mark();
+      while(performance.now()<deadline){app.requestRender?.();const now=await timed(nextFrame());const dt=now-previous;previous=now;if(document.hidden){stable=0;continue}frames++;stable=dt<100?stable+1:0;
+        const pendingImages=Array.from(document.images).some(img=>!img.complete);
+        const pendingPrograms=renderer?.info?.programs?.some?.(program=>typeof program.isReady==='function'&&!program.isReady());
+        if(frames>=45&&stable>=20&&!pendingImages&&!pendingPrograms&&now-lastActivity>=1800){if(device?.queue?.onSubmittedWorkDone)await timed(device.queue.onSubmittedWorkDone());await timed(nextFrame());if(performance.now()-lastActivity>=1800)return}
+      }throw new Error('Scene did not settle');
+      }finally{observer?.disconnect();resourceObserver?.disconnect()}
+    }
     try{
-      await app.load('./assets/scene.splinecode');perfStats.loadMs=Math.round(performance.now()-bootStarted);applyQuality(activeDPR);
+      await app.load('./assets/scene.splinecode',undefined,{credentials:'same-origin',mode:'cors'});perfStats.loadMs=Math.round(performance.now()-bootStarted);applyQuality(activeDPR);
       const[sealTrigger,mainMenu,galleryClose,exitExplore]=await Promise.all([waitForElement('seal-trigger'),waitForElement('main-menu'),waitForElement('gallery-close'),waitForElement('exit-explore')]);
       const flightCamera=app.findObjectByName('Website Flight Camera');let invitationPose=null;
       const captureInvitationPose=()=>{if(!flightCamera)return;invitationPose={position:cloneVector(flightCamera.position),rotation:cloneVector(flightCamera.rotation)};document.body.dataset.invitationPose='ready';syncPremiumActions()};
@@ -99,7 +121,7 @@
       detailsOverlay.addEventListener('click',event=>{if(event.target===detailsOverlay){detailsOverlay.classList.add('premium-hidden');syncPremiumActions()}});
       document.getElementById('copy-details').addEventListener('click',async()=>{const text='Anaya Kamsiyochukwu’s Child Dedication — Sunday, 13 December 2026 at 2:00 PM. K’ville, No. 16 Ituku Street, Upper Chime, New Haven. #BabyKamkam';try{await navigator.clipboard.writeText(text);showToast('Event details copied')}catch(_){showToast('Press and hold to copy the details')}});
       document.getElementById('share-button').addEventListener('click',async()=>{const data={title:'Anaya Kamsiyochukwu’s Child Dedication',text:'Join us on Sunday, 13 December 2026 at 2:00 PM. #BabyKamkam',url:location.origin+location.pathname};try{if(navigator.share)await navigator.share(data);else{await navigator.clipboard.writeText(data.url);showToast('Invitation link copied')}}catch(error){if(error?.name!=='AbortError')showToast('Unable to share right now')}});
-      await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));window.babyKamkamLoading.ready();perfStats.readyMs=Math.round(performance.now());monitorPerformance();
+      await warmScene();app.renderMode='auto';document.body.classList.remove('scene-loading');window.babyKamkamLoading.ready();unlocked=true;perfStats.readyMs=Math.round(performance.now());monitorPerformance();
     }catch(error){console.error('Failed to load Spline scene:',error);window.babyKamkamLoading.fail()}
     let resizeTimer;addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>applyQuality(activeDPR),150)},{passive:true});
   </script>
