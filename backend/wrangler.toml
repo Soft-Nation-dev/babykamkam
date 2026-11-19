@@ -6,4 +6,4 @@ FRONTEND_ORIGIN = "https://soft-nation-dev.github.io"
 [[d1_databases]]
 binding = "DB"
 database_name = "baby-kamkam-rsvp"
-database_id = "REPLACE_WITH_D1_ID"
+database_id = "6b200e3e-26b3-4698-b89d-22a2a102c06a"
