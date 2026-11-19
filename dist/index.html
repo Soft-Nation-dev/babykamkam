@@ -61,17 +61,17 @@
     .loader::after{display:none}.loader{transition:opacity .24s ease-out,visibility .24s}.loader__text{transition:opacity .4s ease,transform .4s cubic-bezier(.2,.7,.3,1);will-change:opacity,transform}.loader__text.is-changing{opacity:0;transform:translate3d(0,4px,0)}.loader__track{height:2px;width:120px;overflow:hidden}.loader__track::after{width:44%;background:linear-gradient(90deg,transparent,#701d38,transparent);animation:loader-glide 1.65s linear infinite;will-change:transform}@keyframes loader-glide{from{transform:translate3d(-110%,0,0)}to{transform:translate3d(340%,0,0)}}.loader__hint{min-height:2.6em;line-height:1.5}.loader.is-hidden .loader__track::after{animation:none}@media(prefers-reduced-motion:reduce){.loader__text{transition:none}.loader__track::after{animation:none;transform:translateX(65%)}}
   
     body.direct-reveal .invitation-site,body.direct-reveal .invite-menu{transition:none!important}body.hybrid-open .invitation-site.is-settled ~ #canvas3d{visibility:hidden!important}body.hybrid-open #canvas3d{pointer-events:none!important}body.hybrid-open #music-toggle.is-visible{visibility:visible!important}
-  body.scene-ready:not(.entrance-finished) #canvas3d{transform:scale(1.13);transform-origin:center center}body{overflow:hidden}
+  body.scene-ready:not(.entrance-finished) #canvas3d{transform:scale(1.04);transform-origin:center center}body{overflow:hidden}
 body.site-sliding .invite-glass,body.site-sliding .invite-menu,body.site-sliding .music-toggle{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:none!important}body.site-sliding .invite-menu{opacity:0!important;pointer-events:none!important}body.site-covered #canvas3d{visibility:hidden!important} 
-@media(max-width:767px) and (orientation:portrait){body.scene-ready:not(.entrance-finished) #canvas3d{transform:translateX(11vw) scale(1.36)}}
+@media(max-width:767px) and (orientation:portrait){body.scene-ready:not(.entrance-finished) #canvas3d{transform:translateX(9vw) scale(1.16)}}
 #seal-trigger{opacity:0!important;pointer-events:none!important}
 #web-seal{position:fixed;left:calc(47.4% - 12px);top:50%;transform:translate(-50%,-50%);z-index:2147483000;pointer-events:auto;display:grid;justify-items:center;gap:12px;border:0;background:none;color:#fff1d6;cursor:pointer;padding:12px;opacity:0;visibility:hidden;transition:opacity .35s,transform .45s;touch-action:manipulation}
-#web-seal img{display:block;width:clamp(132px,13vw,190px);height:auto;filter:drop-shadow(0 8px 12px #0006);transition:transform .25s}
+#web-seal img{display:block;width:clamp(112px,11.5vw,166px);height:auto;filter:drop-shadow(0 8px 12px #0006);transition:transform .25s}
 #web-seal span{font:600 11px/1.3 system-ui,sans-serif;letter-spacing:.08em;white-space:nowrap}
 body.entrance-ready:not(.seal-opened) #web-seal{visibility:visible;opacity:1}
 #web-seal:hover img{transform:scale(1.045)}#web-seal:active img{transform:scale(.94)}
 body.seal-opened #web-seal{visibility:visible;opacity:1;pointer-events:none;transition:none}body.seal-opened #web-seal span{opacity:0}body.seal-finished #web-seal{visibility:hidden!important;opacity:0!important}body.scene-ready:not(.scene-loading) #canvas3d{transition:none}
-@media(max-width:767px) and (orientation:portrait){#web-seal{left:calc(50% - 12px)}}
+@media(max-width:767px) and (orientation:portrait){#web-seal{left:calc(48% - 10px)}}
 #music-toggle{z-index:2147483001;left:auto;right:max(18px,env(safe-area-inset-right));bottom:calc(100px + env(safe-area-inset-bottom));touch-action:manipulation;pointer-events:auto;isolation:isolate}
 #music-toggle::before,#music-toggle svg,#music-toggle svg *{pointer-events:none}
 body.seal-opened #music-toggle.is-visible{opacity:1!important;visibility:visible!important;pointer-events:auto!important}
