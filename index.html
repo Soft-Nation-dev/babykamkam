@@ -65,12 +65,13 @@
 body.site-sliding .invite-glass,body.site-sliding .invite-menu,body.site-sliding .music-toggle{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:none!important}body.site-sliding .invite-menu{opacity:0!important;pointer-events:none!important}body.site-covered #canvas3d{visibility:hidden!important} 
 @media(max-width:767px) and (orientation:portrait){body.scene-ready:not(.entrance-finished) #canvas3d{transform:translateX(11vw) scale(1.36)}}
 #seal-trigger{opacity:0!important;pointer-events:none!important}
-#web-seal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:35;display:grid;justify-items:center;gap:12px;border:0;background:none;color:#fff1d6;cursor:pointer;padding:12px;opacity:0;visibility:hidden;transition:opacity .35s,transform .45s;touch-action:manipulation}
+#web-seal{position:fixed;left:calc(47.4% - 12px);top:50%;transform:translate(-50%,-50%);z-index:2147483000;pointer-events:auto;display:grid;justify-items:center;gap:12px;border:0;background:none;color:#fff1d6;cursor:pointer;padding:12px;opacity:0;visibility:hidden;transition:opacity .35s,transform .45s;touch-action:manipulation}
 #web-seal img{display:block;width:clamp(105px,11vw,160px);height:auto;filter:drop-shadow(0 8px 12px #0006);transition:transform .25s}
 #web-seal span{font:600 11px/1.3 system-ui,sans-serif;letter-spacing:.08em;white-space:nowrap}
 body.scene-ready:not(.scene-loading):not(.seal-opened) #web-seal{visibility:visible;opacity:1}
 #web-seal:hover img{transform:scale(1.045)}#web-seal:active img{transform:scale(.94)}
 body.seal-opened #web-seal{opacity:0;transform:translate(-50%,-50%) scale(.8);pointer-events:none}
+@media(max-width:767px) and (orientation:portrait){#web-seal{left:calc(50% - 12px)}}
 </style>
 </head>
 <body class="scene-loading">
@@ -191,13 +192,14 @@ body.seal-opened #web-seal{opacity:0;transform:translate(-50%,-50%) scale(.8);po
       loaderHint.textContent='Preparing the invitation experience…';const[sealTrigger,mainMenu,galleryClose,exitExplore]=await Promise.all([waitForElement('seal-trigger'),waitForElement('main-menu'),waitForElement('gallery-close'),waitForElement('exit-explore')]);
       const webSeal=document.getElementById('web-seal');
       const hideOriginalSeal=()=>{for(const name of ['Baby Kam Kam Seal','Imported Baby Kam Kam Seal Face']){const object=app.findObjectByName(name);if(object)object.visible=false;}app._scene?.traverse?.(node=>{if(/tap seal|seal instruction|seal prompt/i.test(node.name||''))node.visible=false});app.requestRender?.()};hideOriginalSeal();
-      webSeal.addEventListener('click',()=>{if(!unlocked||webSeal.disabled)return;webSeal.disabled=true;startMusic();sealTrigger.click();hideOriginalSeal()});
+      webSeal.addEventListener('click',()=>{if(!unlocked||webSeal.disabled)return;startMusic();const trigger=document.getElementById('seal-trigger')||sealTrigger;trigger.disabled=false;trigger.click();if(!openingStarted)markOpening();webSeal.disabled=true;hideOriginalSeal()});
       flightCamera=app.findObjectByName('Website Flight Camera');let invitationPose=null;let openingStarted=0;
       const captureInvitationPose=()=>{if(!openingStarted)return;sceneMenuReady=true;if(opening){opening=false;perfStats.openingMs=Math.round(performance.now()-openingStarted);try{app.renderMode='auto'}catch(_){}}if(!invitationPose)invitationPose=readPose(flightCamera);document.body.dataset.invitationPose='ready';if(!roomHolding&&!hybridReady)beginRoomHold();syncPremiumActions()};
       function beginRoomHold(){if(roomHolding||hybridReady)return;roomHolding=true;applyWidePose();try{app.renderMode='auto'}catch(_){}roomHoldUntil=performance.now()+2000;setTimeout(()=>{roomHolding=false;revealHybrid()},2000)}
-      sealTrigger.addEventListener('click',()=>{if(openingStarted)return;openingStarted=performance.now();perfStats.openingStartedMs=Math.round(openingStarted);widePose=readPose(flightCamera);document.body.classList.add('seal-opened');if(music.paused)startMusic();
+      function markOpening(){if(openingStarted)return;openingStarted=performance.now();perfStats.openingStartedMs=Math.round(openingStarted);widePose=readPose(flightCamera);document.body.classList.add('seal-opened');if(music.paused)startMusic();
         // The updated scene signals completion after the doors finish; then hold the room for two seconds.
-      },{capture:true,once:true});
+      }
+      sealTrigger.addEventListener('click',markOpening,{capture:true,once:true});window.addEventListener('baby-kamkam-opening-started',markOpening);window.addEventListener('message',event=>{if(event.source!==window)return;if(event.data?.type==='baby-kamkam-opening-started')markOpening();if(event.data?.type==='baby-kamkam-opening-complete')captureInvitationPose()});
       installPremiumSceneStyles();window.addEventListener('baby-kamkam-opening-complete',captureInvitationPose,{once:true});installReturnDelegation(flightCamera,()=>invitationPose);
       const observed=[mainMenu,document.getElementById('modal-backdrop'),document.getElementById('gallery-controls'),exitExplore].filter(Boolean),observer=new MutationObserver(()=>{if(!sceneMenuReady&&openingStarted&&!mainMenu.classList.contains('hidden'))captureInvitationPose();else syncPremiumActions()});observed.forEach(element=>observer.observe(element,{attributes:true,attributeFilter:['class']}));
       document.body.classList.add('scene-ready');
