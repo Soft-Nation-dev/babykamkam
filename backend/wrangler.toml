@@ -1,0 +1,9 @@
+name = "baby-kamkam-rsvp"
+main = "src/index.js"
+compatibility_date = "2026-11-19"
+[vars]
+FRONTEND_ORIGIN = "https://soft-nation-dev.github.io"
+[[d1_databases]]
+binding = "DB"
+database_name = "baby-kamkam-rsvp"
+database_id = "REPLACE_WITH_D1_ID"

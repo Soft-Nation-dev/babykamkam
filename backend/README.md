@@ -1,0 +1,2 @@
+# RSVP deployment
+Create D1 baby-kamkam-rsvp, set database_id in wrangler.toml, apply schema.sql remotely, set ADMIN_TOKEN using wrangler secret put, deploy Worker. Update dist/api-config.json with deployed HTTPS origin and deploy dist to gh-pages. Never commit token. Test valid RSVP, duplicate 409, invalid guest count 400, missing token 401 and authenticated records. Use a separate test D1 or remove test records after verification. Strict invitation eligibility is not enforced without per-invitation codes.

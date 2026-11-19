@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS rsvps (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL,phone TEXT NOT NULL UNIQUE,attendance TEXT NOT NULL CHECK(attendance IN ('yes','no')),guests INTEGER NOT NULL CHECK((attendance='yes' AND guests IN (1,2)) OR (attendance='no' AND guests=0)),created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
