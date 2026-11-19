@@ -254,5 +254,6 @@ body.seal-opened #music-toggle.is-visible{opacity:1!important;visibility:visible
     }catch(error){console.error('Failed to load Spline scene:',error);window.babyKamkamLoading.fail()}
     let resizeTimer;addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(!opening)applyQuality(activeDPR)},150)},{passive:true});
   </script>
+<script type="module" src="./rsvp.js"></script>
 </body>
 </html>
