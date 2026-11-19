@@ -77,6 +77,7 @@ body.seal-opened #web-seal{visibility:visible;opacity:1;pointer-events:none;tran
 body.seal-opened #music-toggle.is-visible{opacity:1!important;visibility:visible!important;pointer-events:auto!important}
 @media(min-width:768px){#music-toggle{right:24px;bottom:24px}}
 </style>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).catch(console.warn);window.addEventListener('load',()=>{navigator.serviceWorker.ready.then(r=>r.active?.postMessage('warm-assets')).catch(console.warn)},{once:true})}</script>
 </head>
 <body class="scene-loading">
   <div class="loader" id="loader" aria-busy="true">
