@@ -68,9 +68,9 @@ body.site-sliding .invite-glass,body.site-sliding .invite-menu,body.site-sliding
 #web-seal{position:fixed;left:calc(47.4% - 12px);top:50%;transform:translate(-50%,-50%);z-index:2147483000;pointer-events:auto;display:grid;justify-items:center;gap:12px;border:0;background:none;color:#fff1d6;cursor:pointer;padding:12px;opacity:0;visibility:hidden;transition:opacity .35s,transform .45s;touch-action:manipulation}
 #web-seal img{display:block;width:clamp(132px,13vw,190px);height:auto;filter:drop-shadow(0 8px 12px #0006);transition:transform .25s}
 #web-seal span{font:600 11px/1.3 system-ui,sans-serif;letter-spacing:.08em;white-space:nowrap}
-body.scene-ready:not(.scene-loading):not(.seal-opened) #web-seal{visibility:visible;opacity:1}
+body.entrance-ready:not(.seal-opened) #web-seal{visibility:visible;opacity:1}
 #web-seal:hover img{transform:scale(1.045)}#web-seal:active img{transform:scale(.94)}
-body.seal-opened #web-seal{visibility:visible;opacity:1;pointer-events:none;transition:none}body.seal-opened #web-seal span{opacity:0}body.seal-finished #web-seal{visibility:hidden;opacity:0}body.scene-ready:not(.scene-loading) #canvas3d{transition:none}
+body.seal-opened #web-seal{visibility:visible;opacity:1;pointer-events:none;transition:none}body.seal-opened #web-seal span{opacity:0}body.seal-finished #web-seal{visibility:hidden!important;opacity:0!important}body.scene-ready:not(.scene-loading) #canvas3d{transition:none}
 @media(max-width:767px) and (orientation:portrait){#web-seal{left:calc(50% - 12px)}}
 #music-toggle{z-index:2147483001;left:auto;right:max(18px,env(safe-area-inset-right));bottom:calc(100px + env(safe-area-inset-bottom));touch-action:manipulation;pointer-events:auto;isolation:isolate}
 #music-toggle::before,#music-toggle svg,#music-toggle svg *{pointer-events:none}
@@ -178,6 +178,13 @@ body.seal-opened #music-toggle.is-visible{opacity:1!important;visibility:visible
       const started=performance.now();
       const renderer=app._renderer;const device=renderer?.backend?.device;
       loaderHint.textContent='Preparing the 3D room…';
+      const names=['Left Invitation Cover','Right Invitation Cover'];
+      const textures=new Set();
+      const collect=()=>{for(const name of names){app._scene?.getObjectByName?.(name)?.traverse?.(node=>{for(const mat of (Array.isArray(node.material)?node.material:[node.material])){if(!mat)continue;for(const v of [...Object.values(mat),...Object.values(mat.uniforms||{})]){if(v?.isTexture)textures.add(v);if(v?.value?.isTexture)textures.add(v.value)}}})}};
+      const ready=t=>{const im=t.source?.data||t.image;return !!im&&im.complete!==false&&(im.naturalWidth===undefined||im.naturalWidth>0)&&!!(im.width||im.videoWidth||im.naturalWidth||im.data?.length)};
+      let stable=0;while(performance.now()-started<12000){collect();app.requestRender?.();if(names.every(n=>app.findObjectByName(n))&&[...textures].every(ready)){if(!stable)stable=performance.now();if(performance.now()-stable>=1000)break}else stable=0;await delay(120)}
+      if(!stable||![...textures].every(ready))throw new Error('Door assets not ready');
+      for(const texture of textures){try{if(renderer?.initTextureAsync)await Promise.race([renderer.initTextureAsync(texture),delay(2000)]);else renderer?.initTexture?.(texture)}catch(_){}}
       if(app._scene?.isScene&&app._camera?.isCamera&&typeof renderer?.compileAsync==='function'){try{await Promise.race([renderer.compileAsync(app._scene,app._camera),delay(2500)])}catch(_){}}
       if(device?.queue?.onSubmittedWorkDone)await Promise.race([device.queue.onSubmittedWorkDone().catch(()=>{}),delay(1600)]);
       app.requestRender?.();await Promise.race([new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))),delay(500)]);
@@ -200,12 +207,41 @@ body.seal-opened #music-toggle.is-visible{opacity:1!important;visibility:visible
       flightCamera=app.findObjectByName('Website Flight Camera');let invitationPose=null;let openingStarted=0;
       const captureInvitationPose=()=>{if(!openingStarted)return;sceneMenuReady=true;if(opening){opening=false;perfStats.openingMs=Math.round(performance.now()-openingStarted);try{app.renderMode='auto'}catch(_){}}if(!invitationPose)invitationPose=readPose(flightCamera);document.body.dataset.invitationPose='ready';if(!roomHolding&&!hybridReady)beginRoomHold();syncPremiumActions()};
       function beginRoomHold(){if(roomHolding||hybridReady)return;roomHolding=true;applyWidePose();try{app.renderMode='auto'}catch(_){}roomHoldUntil=performance.now()+2000;setTimeout(()=>{roomHolding=false;revealHybrid()},2000)}
-      function animateWebSeal(){const start=performance.now();const smooth=t=>t*t*(3-2*t);const clamp=t=>Math.max(0,Math.min(1,t));const frame=now=>{const t=(now-start)/1000;const p=smooth(clamp((t-.85)/3.65));const press=smooth(clamp(t/.38))*(1-smooth(clamp((t-.4)/.55)));webSeal.style.transform=`translate(calc(-50% - ${p*110}vw),-50%) perspective(900px) rotateY(${-69*p}deg) scale(${1-.025*press})`;if(t<4.70&&!sceneMenuReady)requestAnimationFrame(frame);else document.body.classList.add('seal-finished')};requestAnimationFrame(frame)}
+      function animateWebSeal(){
+        const root=app._scene, camera=app._camera, door=root?.getObjectByName?.('Left Invitation Cover');
+        const rect=webSeal.getBoundingClientRect(), canvasRect=canvas.getBoundingClientRect();
+        let anchor=null;
+        if(door?.worldToLocal&&camera?.isCamera){
+          root.updateMatrixWorld(true);camera.updateMatrixWorld(true);
+          const center=door.getWorldPosition(door.position.clone()).project(camera);
+          const p=door.position.clone().set((rect.left+rect.width/2-canvasRect.left)/canvasRect.width*2-1,1-(rect.top+rect.height/2-canvasRect.top)/canvasRect.height*2,center.z).unproject(camera);
+          anchor=door.worldToLocal(p);
+        }
+        const start=performance.now(), smooth=t=>t*t*(3-2*t), clamp=t=>Math.max(0,Math.min(1,t));
+        const frame=now=>{
+          if(sceneMenuReady||now-start>5500){document.body.classList.add('seal-finished');return}
+          const t=(now-start)/1000;
+          if(anchor&&door&&camera){
+            root.updateMatrixWorld(true);camera.updateMatrixWorld(true);
+            const project=v=>{const p=door.localToWorld(v).project(camera),r=canvas.getBoundingClientRect();return {x:r.left+(p.x+1)*r.width/2,y:r.top+(1-p.y)*r.height/2}};
+            const p=project(anchor.clone()),q=project(anchor.clone().add(door.position.clone().set(100,0,0)));
+            webSeal.style.left=p.x+'px';webSeal.style.top=p.y+'px';
+            const angle=door.rotation.y;
+            webSeal.style.transform='translate(-50%,-50%) perspective(900px) rotateY('+angle+'rad)';
+            webSeal.style.visibility=Number.isFinite(q.x)&&Number.isFinite(p.x)?'visible':'hidden';
+          }else{
+            const p=smooth(clamp((t-.85)/3.65));webSeal.style.transform='translate(calc(-50% - '+p*110+'vw),-50%) perspective(900px) rotateY('+(-69*p)+'deg)';
+          }
+          requestAnimationFrame(frame)
+        };requestAnimationFrame(frame)
+      }
       function markOpening(){if(openingStarted)return;openingStarted=performance.now();perfStats.openingStartedMs=Math.round(openingStarted);widePose=readPose(flightCamera);document.body.classList.add('seal-opened');animateWebSeal();if(music.paused)startMusic();
         // The updated scene signals completion after the doors finish; then hold the room for two seconds.
       }
       sealTrigger.addEventListener('click',markOpening,{capture:true,once:true});window.addEventListener('baby-kamkam-opening-started',markOpening);window.addEventListener('message',event=>{if(event.source!==window)return;if(event.data?.type==='baby-kamkam-opening-started')markOpening();if(event.data?.type==='baby-kamkam-opening-complete')captureInvitationPose()});
-      installPremiumSceneStyles();window.addEventListener('baby-kamkam-opening-complete',captureInvitationPose,{once:true});installReturnDelegation(flightCamera,()=>invitationPose);
+      installPremiumSceneStyles();
+      function updateRsvpNotice(){const card=document.getElementById('rsvp-card');if(!card)return;if(!card.querySelector('#invitation-limit')){const notice=document.createElement('p');notice.id='invitation-limit';notice.style.cssText='text-align:center;padding:12px;border:1px solid #ad854866;border-radius:12px;margin:12px 0;font-size:14px';notice.innerHTML='<strong>Strictly on invitation</strong><br>This invitation allows two persons';const form=card.querySelector('form');if(form)form.prepend(notice);else card.prepend(notice)}for(const select of card.querySelectorAll('select')){if(Array.from(select.options).some(o=>/guest|person/i.test(o.textContent)||/^[345]$/.test(o.value))){for(const option of Array.from(select.options))if(Number(option.value)>2||/^[345]/.test(option.textContent.trim()))option.remove()}}}
+      updateRsvpNotice();window.addEventListener('baby-kamkam-opening-complete',captureInvitationPose,{once:true});installReturnDelegation(flightCamera,()=>invitationPose);
       const observed=[mainMenu,document.getElementById('modal-backdrop'),document.getElementById('gallery-controls'),exitExplore].filter(Boolean),observer=new MutationObserver(()=>{if(!sceneMenuReady&&openingStarted&&!mainMenu.classList.contains('hidden'))captureInvitationPose();else syncPremiumActions()});observed.forEach(element=>observer.observe(element,{attributes:true,attributeFilter:['class']}));
       document.body.classList.add('scene-ready');
       document.getElementById('details-button').addEventListener('click',()=>{detailsOverlay.classList.remove('premium-hidden');syncPremiumActions()});
@@ -213,7 +249,7 @@ body.seal-opened #music-toggle.is-visible{opacity:1!important;visibility:visible
       detailsOverlay.addEventListener('click',event=>{if(event.target===detailsOverlay){detailsOverlay.classList.add('premium-hidden');syncPremiumActions()}});
       document.getElementById('copy-details').addEventListener('click',async()=>{const text='Anaya Kamsiyochukwu’s Child Dedication — Sunday, 13 December 2026 at 2:00 PM. K’ville, No. 16 Ituku Street, Upper Chime, New Haven. #BabyKamkam';try{await navigator.clipboard.writeText(text);showToast('Event details copied')}catch(_){showToast('Press and hold to copy the details')}});
       document.getElementById('share-button').addEventListener('click',async()=>{const data={title:'Anaya Kamsiyochukwu’s Child Dedication',text:'Join us on Sunday, 13 December 2026 at 2:00 PM. #BabyKamkam',url:location.origin+location.pathname};try{if(navigator.share)await navigator.share(data);else{await navigator.clipboard.writeText(data.url);showToast('Invitation link copied')}}catch(error){if(error?.name!=='AbortError')showToast('Unable to share right now')}});
-      await warmScene();await Promise.race([webSeal.querySelector('img').decode().catch(()=>{}),delay(1200)]);hideOriginalSeal();app.requestRender?.();await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));document.body.classList.remove('scene-loading');window.babyKamkamLoading.ready();unlocked=true;webSeal.disabled=false;perfStats.readyMs=Math.round(performance.now());monitorPerformance();
+      await warmScene();await Promise.race([webSeal.querySelector('img').decode().catch(()=>{}),delay(1200)]);hideOriginalSeal();app.requestRender?.();await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));document.body.classList.remove('scene-loading');window.babyKamkamLoading.ready();unlocked=true;webSeal.disabled=false;document.body.classList.add('entrance-ready');perfStats.readyMs=Math.round(performance.now());monitorPerformance();
     }catch(error){console.error('Failed to load Spline scene:',error);window.babyKamkamLoading.fail()}
     let resizeTimer;addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(!opening)applyQuality(activeDPR)},150)},{passive:true});
   </script>
