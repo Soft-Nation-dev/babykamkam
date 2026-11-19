@@ -120,7 +120,7 @@ body.seal-opened #music-toggle.is-visible{opacity:1!important;visibility:visible
   </button>
 
   <script type="module">
-    let unlocked=false;const blockInteraction=event=>{if(!unlocked&&!event.target?.closest?.("#loader")){event.preventDefault();event.stopImmediatePropagation()}};for(const name of ["pointerdown","pointerup","click","touchstart","touchend","keydown","wheel"])window.addEventListener(name,blockInteraction,{capture:true,passive:false});
+    let unlocked=false;const blockInteraction=event=>{if(!unlocked&&!event.target?.closest?.("#loader,#kam-rsvp-dialog")){event.preventDefault();event.stopImmediatePropagation()}};for(const name of ["pointerdown","pointerup","click","touchstart","touchend","keydown","wheel"])window.addEventListener(name,blockInteraction,{capture:true,passive:false});
     let Application;try{({Application}=await import('https://cdn.spline.design/@splinetool/runtime@2.0.186/build/runtime.js'))}catch(error){window.babyKamkamLoading.fail();throw error}
     const isMobilePreview=new URLSearchParams(location.search).has('mobile-preview');
     const isMobile=isMobilePreview||/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)||innerWidth<768;
@@ -254,6 +254,6 @@ body.seal-opened #music-toggle.is-visible{opacity:1!important;visibility:visible
     }catch(error){console.error('Failed to load Spline scene:',error);window.babyKamkamLoading.fail()}
     let resizeTimer;addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(!opening)applyQuality(activeDPR)},150)},{passive:true});
   </script>
-<script type="module" src="./rsvp.js"></script>
+<script type="module" src="./rsvp.js?v=19"></script>
 </body>
 </html>
