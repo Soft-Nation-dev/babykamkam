@@ -66,12 +66,16 @@ body.site-sliding .invite-glass,body.site-sliding .invite-menu,body.site-sliding
 @media(max-width:767px) and (orientation:portrait){body.scene-ready:not(.entrance-finished) #canvas3d{transform:translateX(11vw) scale(1.36)}}
 #seal-trigger{opacity:0!important;pointer-events:none!important}
 #web-seal{position:fixed;left:calc(47.4% - 12px);top:50%;transform:translate(-50%,-50%);z-index:2147483000;pointer-events:auto;display:grid;justify-items:center;gap:12px;border:0;background:none;color:#fff1d6;cursor:pointer;padding:12px;opacity:0;visibility:hidden;transition:opacity .35s,transform .45s;touch-action:manipulation}
-#web-seal img{display:block;width:clamp(105px,11vw,160px);height:auto;filter:drop-shadow(0 8px 12px #0006);transition:transform .25s}
+#web-seal img{display:block;width:clamp(132px,13vw,190px);height:auto;filter:drop-shadow(0 8px 12px #0006);transition:transform .25s}
 #web-seal span{font:600 11px/1.3 system-ui,sans-serif;letter-spacing:.08em;white-space:nowrap}
 body.scene-ready:not(.scene-loading):not(.seal-opened) #web-seal{visibility:visible;opacity:1}
 #web-seal:hover img{transform:scale(1.045)}#web-seal:active img{transform:scale(.94)}
 body.seal-opened #web-seal{visibility:visible;opacity:1;pointer-events:none;transition:none}body.seal-opened #web-seal span{opacity:0}body.seal-finished #web-seal{visibility:hidden;opacity:0}body.scene-ready:not(.scene-loading) #canvas3d{transition:none}
 @media(max-width:767px) and (orientation:portrait){#web-seal{left:calc(50% - 12px)}}
+#music-toggle{z-index:2147483001;left:auto;right:max(18px,env(safe-area-inset-right));bottom:calc(100px + env(safe-area-inset-bottom));touch-action:manipulation;pointer-events:auto;isolation:isolate}
+#music-toggle::before,#music-toggle svg,#music-toggle svg *{pointer-events:none}
+body.seal-opened #music-toggle.is-visible{opacity:1!important;visibility:visible!important;pointer-events:auto!important}
+@media(min-width:768px){#music-toggle{right:24px;bottom:24px}}
 </style>
 </head>
 <body class="scene-loading">
@@ -186,7 +190,7 @@ body.seal-opened #web-seal{visibility:visible;opacity:1;pointer-events:none;tran
     function syncMusic(){const playing=!music.paused&&!music.ended;musicButton.classList.toggle('is-playing',playing);musicButton.classList.toggle('is-paused',!playing);musicButton.setAttribute('aria-label',playing?'Pause music':'Play music');musicButton.title=playing?'Pause music':'Play music'}
     function startMusic(){musicButton.classList.add('is-visible');music.volume=.72;music.play().then(syncMusic).catch(syncMusic)}
     for(const event of ['play','pause','ended','error'])music.addEventListener(event,syncMusic);
-    musicButton.addEventListener('click',()=>{if(music.paused)startMusic();else music.pause()});
+    musicButton.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();if(music.paused)startMusic();else music.pause();syncMusic()});
     try{
       loaderHint.textContent='Loading the 3D environment…';await deadline(app.load('./assets/scene.splinecode?v=2',undefined,{credentials:'same-origin',mode:'cors'}),45000,'Scene load timed out');perfStats.loadMs=Math.round(performance.now()-bootStarted);applyQuality(activeDPR);
       loaderHint.textContent='Preparing the invitation experience…';const[sealTrigger,mainMenu,galleryClose,exitExplore]=await Promise.all([waitForElement('seal-trigger'),waitForElement('main-menu'),waitForElement('gallery-close'),waitForElement('exit-explore')]);
