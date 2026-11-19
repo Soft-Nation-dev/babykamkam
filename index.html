@@ -10,7 +10,7 @@
   <meta property="og:image" content="assets/baby-primary.webp">
   <link rel="preconnect" href="https://cdn.spline.design" crossorigin>
   <link rel="modulepreload" href="https://cdn.spline.design/@splinetool/runtime@2.0.186/build/runtime.js" crossorigin>
-  <link rel="preload" href="https://prod.spline.design/uDv5ybrM-NXZYv0H/scene.splinecode" as="fetch" crossorigin fetchpriority="high">
+  <link rel="preload" href="assets/scene.splinecode?v=2" as="fetch" crossorigin fetchpriority="high">
   <title>Baby Kam Kam — 3D Invitation</title>
   <style>
     :root{color-scheme:dark;--wine950:#21070e;--wine900:#2a0d12;--cream:#fff8ed;--gold:#ddb95f;--safe-bottom:max(16px,env(safe-area-inset-bottom))}
@@ -61,7 +61,8 @@
     .loader::after{display:none}.loader{transition:opacity .24s ease-out,visibility .24s}.loader__text{transition:opacity .4s ease,transform .4s cubic-bezier(.2,.7,.3,1);will-change:opacity,transform}.loader__text.is-changing{opacity:0;transform:translate3d(0,4px,0)}.loader__track{height:2px;width:120px;overflow:hidden}.loader__track::after{width:44%;background:linear-gradient(90deg,transparent,#701d38,transparent);animation:loader-glide 1.65s linear infinite;will-change:transform}@keyframes loader-glide{from{transform:translate3d(-110%,0,0)}to{transform:translate3d(340%,0,0)}}.loader__hint{min-height:2.6em;line-height:1.5}.loader.is-hidden .loader__track::after{animation:none}@media(prefers-reduced-motion:reduce){.loader__text{transition:none}.loader__track::after{animation:none;transform:translateX(65%)}}
   
     body.direct-reveal .invitation-site,body.direct-reveal .invite-menu{transition:none!important}body.hybrid-open .invitation-site.is-settled ~ #canvas3d{visibility:hidden!important}body.hybrid-open #canvas3d{pointer-events:none!important}body.hybrid-open #music-toggle.is-visible{visibility:visible!important}
-  </style>
+  body.scene-ready:not(.seal-opened) #canvas3d{transform:scale(1.13);transform-origin:center center}body{overflow:hidden}
+</style>
 </head>
 <body class="scene-loading">
   <div class="loader" id="loader" aria-busy="true">
@@ -182,12 +183,12 @@
     for(const event of ['play','pause','ended','error'])music.addEventListener(event,syncMusic);
     musicButton.addEventListener('click',()=>{if(music.paused)startMusic();else music.pause()});
     try{
-      loaderHint.textContent='Loading the 3D environment…';await app.load('https://prod.spline.design/uDv5ybrM-NXZYv0H/scene.splinecode',undefined,{credentials:'omit',mode:'cors'});perfStats.loadMs=Math.round(performance.now()-bootStarted);applyQuality(activeDPR);
+      loaderHint.textContent='Loading the 3D environment…';await app.load('./assets/scene.splinecode?v=2',undefined,{credentials:'same-origin',mode:'cors'});perfStats.loadMs=Math.round(performance.now()-bootStarted);applyQuality(activeDPR);
       loaderHint.textContent='Preparing the invitation experience…';const[sealTrigger,mainMenu,galleryClose,exitExplore]=await Promise.all([waitForElement('seal-trigger'),waitForElement('main-menu'),waitForElement('gallery-close'),waitForElement('exit-explore')]);
       flightCamera=app.findObjectByName('Website Flight Camera');let invitationPose=null;let openingStarted=0;
       const captureInvitationPose=()=>{if(!openingStarted)return;sceneMenuReady=true;if(opening){opening=false;perfStats.openingMs=Math.round(performance.now()-openingStarted);try{app.renderMode='auto'}catch(_){}}if(!invitationPose)invitationPose=readPose(flightCamera);document.body.dataset.invitationPose='ready';if(!roomHolding&&!hybridReady)beginRoomHold();syncPremiumActions()};
       function beginRoomHold(){if(roomHolding||hybridReady)return;roomHolding=true;roomHoldUntil=performance.now()+2000;const hold=now=>{if(now<roomHoldUntil){applyWidePose();requestAnimationFrame(hold)}else{revealHybrid();const slideEnd=performance.now()+760;const duringSlide=t=>{if(t<slideEnd&&hybridShown){applyWidePose();requestAnimationFrame(duringSlide)}else roomHolding=false};requestAnimationFrame(duringSlide)}};applyWidePose();requestAnimationFrame(hold)}
-      sealTrigger.addEventListener('click',()=>{if(openingStarted)return;openingStarted=performance.now();perfStats.openingStartedMs=Math.round(openingStarted);widePose=readPose(flightCamera);startMusic();
+      sealTrigger.addEventListener('click',()=>{if(openingStarted)return;openingStarted=performance.now();perfStats.openingStartedMs=Math.round(openingStarted);widePose=readPose(flightCamera);document.body.classList.add('seal-opened');startMusic();
         // The updated scene signals completion after the doors finish; then hold the room for two seconds.
       },{capture:true,once:true});
       installPremiumSceneStyles();window.addEventListener('baby-kamkam-opening-complete',captureInvitationPose,{once:true});installReturnDelegation(flightCamera,()=>invitationPose);
