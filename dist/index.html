@@ -64,6 +64,13 @@
   body.scene-ready:not(.entrance-finished) #canvas3d{transform:scale(1.13);transform-origin:center center}body{overflow:hidden}
 body.site-sliding .invite-glass,body.site-sliding .invite-menu,body.site-sliding .music-toggle{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:none!important}body.site-sliding .invite-menu{opacity:0!important;pointer-events:none!important}body.site-covered #canvas3d{visibility:hidden!important} 
 @media(max-width:767px) and (orientation:portrait){body.scene-ready:not(.entrance-finished) #canvas3d{transform:translateX(11vw) scale(1.36)}}
+#seal-trigger{opacity:0!important;pointer-events:none!important}
+#web-seal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:35;display:grid;justify-items:center;gap:12px;border:0;background:none;color:#fff1d6;cursor:pointer;padding:12px;opacity:0;visibility:hidden;transition:opacity .35s,transform .45s;touch-action:manipulation}
+#web-seal img{display:block;width:clamp(105px,11vw,160px);height:auto;filter:drop-shadow(0 8px 12px #0006);transition:transform .25s}
+#web-seal span{font:600 11px/1.3 system-ui,sans-serif;letter-spacing:.08em;white-space:nowrap}
+body.scene-ready:not(.scene-loading):not(.seal-opened) #web-seal{visibility:visible;opacity:1}
+#web-seal:hover img{transform:scale(1.045)}#web-seal:active img{transform:scale(.94)}
+body.seal-opened #web-seal{opacity:0;transform:translate(-50%,-50%) scale(.8);pointer-events:none}
 </style>
 </head>
 <body class="scene-loading">
@@ -82,6 +89,7 @@ body.site-sliding .invite-glass,body.site-sliding .invite-menu,body.site-sliding
   (()=>{const loader=document.getElementById("loader"),message=document.getElementById("loader-message"),hint=document.getElementById("loader-hint");const phrases=["Little hands. Endless blessings.","A tiny miracle. A lifetime of love.","Every blessing has a beautiful story.","Some moments are worth celebrating forever.","Made with love, wrapped in grace."];let index=0,fade=0,finished=false;const watchdog=setTimeout(()=>window.babyKamkamLoading?.fail(),85000);const cycle=setInterval(()=>{message.classList.add("is-changing");fade=setTimeout(()=>{message.textContent=phrases[++index%phrases.length];message.classList.remove("is-changing")},400)},3600);const stop=()=>{clearInterval(cycle);clearTimeout(fade);clearTimeout(watchdog)};window.babyKamkamLoading={ready(){if(finished)return;finished=true;stop();loader.setAttribute("aria-busy","false");loader.classList.add("is-hidden");loader.inert=true;loader.setAttribute("aria-hidden","true")},fail(){if(finished)return;finished=true;stop();loader.setAttribute("aria-busy","false");loader.classList.add("is-error");message.classList.remove("is-changing");message.textContent="A little moment longer.";hint.textContent="The invitation could not be loaded. Please try again.";const retry=document.createElement("button");retry.className="loader__retry";retry.textContent="Try again";retry.onclick=()=>location.reload();hint.after(retry)}};})();
   </script>
   <canvas id="canvas3d" aria-label="Interactive 3D child dedication invitation"></canvas>
+  <button id="web-seal" type="button" aria-label="Open invitation" disabled><img src="assets/seal.png" alt="" fetchpriority="high" decoding="async"><span>TAP SEAL TO OPEN</span></button>
   <section class="invitation-site" id="invitation-site" aria-label="Child dedication invitation" inert>
     <div class="invitation-site__inner"><p class="invite-kicker">A celebration of love &amp; grace</p>
       <div class="invite-ornament" aria-hidden="true">✧</div><p class="invite-kicker">Save the date</p><h2 class="invite-section-title">A day to remember</h2><header class="invite-glass invite-hero"><img class="invite-portrait" src="assets/baby-primary.webp" alt="Baby Anaya" decoding="async" fetchpriority="low"><p class="invite-kicker">The child dedication of</p><h1>Anaya <em>Kamsiyochukwu</em></h1><p>With hearts full of gratitude, Engr. &amp; Mrs. Asogwa warmly invite you to celebrate this beautiful blessing with their family.</p></header>
@@ -163,25 +171,8 @@ body.site-sliding .invite-glass,body.site-sliding .invite-menu,body.site-sliding
     async function warmScene(){
       loaderHint.textContent='Preparing the wax seal…';
       const started=performance.now();
-      // Wait for the entrance texture, not all invitation images or stable frame rates.
-      const faceName='Imported Baby Kam Kam Seal Face';
-      function sealTextures(){
-        const found=[];const root=app._scene;
-        root?.traverse?.(node=>{if(node.name!==faceName&&node.uuid!=='624ffa02-1fc8-43ae-b2c0-961d87ac8e5f')return;node.traverse?.(mesh=>{for(const mat of (Array.isArray(mesh.material)?mesh.material:[mesh.material])){if(!mat)continue;for(const value of Object.values(mat)){if(value?.isTexture)found.push(value);if(value?.value?.isTexture)found.push(value.value)}for(const uniform of Object.values(mat.uniforms||{}))if(uniform?.value?.isTexture)found.push(uniform.value)}})});
-        return found;
-      }
-      const ready=t=>{const im=t.source?.data||t.image;return !!im&&(im.complete!==false)&&(im.naturalWidth===undefined||im.naturalWidth>0)&&((im.width||im.videoWidth||im.naturalWidth||im.data?.length)>0)};
-      let firstReady=0,known=false;
-      while(performance.now()-started<18000){
-        app.requestRender?.();const textures=sealTextures();known=known||textures.length>0;
-        if(textures.length&&textures.every(ready)){if(!firstReady)firstReady=performance.now();if(performance.now()-firstReady>=700)break}else firstReady=0;
-        if(!known&&performance.now()-started>=12000)break
-        await delay(150);
-      }
-      perfStats.sealTexturesDetected=known;perfStats.sealTextureReady=!!firstReady;
-      if(known&&!firstReady)throw new Error('Seal texture not ready');
       const renderer=app._renderer;const device=renderer?.backend?.device;
-      const textures=sealTextures();for(const texture of textures){try{if(typeof renderer?.initTextureAsync==='function')await Promise.race([renderer.initTextureAsync(texture),delay(2000)]);else renderer?.initTexture?.(texture)}catch(_){}}
+      loaderHint.textContent='Preparing the 3D room…';
       if(app._scene?.isScene&&app._camera?.isCamera&&typeof renderer?.compileAsync==='function'){try{await Promise.race([renderer.compileAsync(app._scene,app._camera),delay(2500)])}catch(_){}}
       if(device?.queue?.onSubmittedWorkDone)await Promise.race([device.queue.onSubmittedWorkDone().catch(()=>{}),delay(1600)]);
       app.requestRender?.();await Promise.race([new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))),delay(500)]);
@@ -198,10 +189,13 @@ body.site-sliding .invite-glass,body.site-sliding .invite-menu,body.site-sliding
     try{
       loaderHint.textContent='Loading the 3D environment…';await deadline(app.load('./assets/scene.splinecode?v=2',undefined,{credentials:'same-origin',mode:'cors'}),45000,'Scene load timed out');perfStats.loadMs=Math.round(performance.now()-bootStarted);applyQuality(activeDPR);
       loaderHint.textContent='Preparing the invitation experience…';const[sealTrigger,mainMenu,galleryClose,exitExplore]=await Promise.all([waitForElement('seal-trigger'),waitForElement('main-menu'),waitForElement('gallery-close'),waitForElement('exit-explore')]);
+      const webSeal=document.getElementById('web-seal');
+      const oldFace=app.findObjectByName('Imported Baby Kam Kam Seal Face');if(oldFace)oldFace.visible=false;
+      webSeal.addEventListener('click',()=>{if(!unlocked||webSeal.disabled)return;webSeal.disabled=true;startMusic();sealTrigger.click()});
       flightCamera=app.findObjectByName('Website Flight Camera');let invitationPose=null;let openingStarted=0;
       const captureInvitationPose=()=>{if(!openingStarted)return;sceneMenuReady=true;if(opening){opening=false;perfStats.openingMs=Math.round(performance.now()-openingStarted);try{app.renderMode='auto'}catch(_){}}if(!invitationPose)invitationPose=readPose(flightCamera);document.body.dataset.invitationPose='ready';if(!roomHolding&&!hybridReady)beginRoomHold();syncPremiumActions()};
       function beginRoomHold(){if(roomHolding||hybridReady)return;roomHolding=true;applyWidePose();try{app.renderMode='auto'}catch(_){}roomHoldUntil=performance.now()+2000;setTimeout(()=>{roomHolding=false;revealHybrid()},2000)}
-      sealTrigger.addEventListener('click',()=>{if(openingStarted)return;openingStarted=performance.now();perfStats.openingStartedMs=Math.round(openingStarted);widePose=readPose(flightCamera);document.body.classList.add('seal-opened');startMusic();
+      sealTrigger.addEventListener('click',()=>{if(openingStarted)return;openingStarted=performance.now();perfStats.openingStartedMs=Math.round(openingStarted);widePose=readPose(flightCamera);document.body.classList.add('seal-opened');if(music.paused)startMusic();
         // The updated scene signals completion after the doors finish; then hold the room for two seconds.
       },{capture:true,once:true});
       installPremiumSceneStyles();window.addEventListener('baby-kamkam-opening-complete',captureInvitationPose,{once:true});installReturnDelegation(flightCamera,()=>invitationPose);
@@ -212,7 +206,7 @@ body.site-sliding .invite-glass,body.site-sliding .invite-menu,body.site-sliding
       detailsOverlay.addEventListener('click',event=>{if(event.target===detailsOverlay){detailsOverlay.classList.add('premium-hidden');syncPremiumActions()}});
       document.getElementById('copy-details').addEventListener('click',async()=>{const text='Anaya Kamsiyochukwu’s Child Dedication — Sunday, 13 December 2026 at 2:00 PM. K’ville, No. 16 Ituku Street, Upper Chime, New Haven. #BabyKamkam';try{await navigator.clipboard.writeText(text);showToast('Event details copied')}catch(_){showToast('Press and hold to copy the details')}});
       document.getElementById('share-button').addEventListener('click',async()=>{const data={title:'Anaya Kamsiyochukwu’s Child Dedication',text:'Join us on Sunday, 13 December 2026 at 2:00 PM. #BabyKamkam',url:location.origin+location.pathname};try{if(navigator.share)await navigator.share(data);else{await navigator.clipboard.writeText(data.url);showToast('Invitation link copied')}}catch(error){if(error?.name!=='AbortError')showToast('Unable to share right now')}});
-      await warmScene();document.body.classList.remove('scene-loading');window.babyKamkamLoading.ready();unlocked=true;perfStats.readyMs=Math.round(performance.now());monitorPerformance();
+      await warmScene();document.body.classList.remove('scene-loading');window.babyKamkamLoading.ready();unlocked=true;webSeal.disabled=false;perfStats.readyMs=Math.round(performance.now());monitorPerformance();
     }catch(error){console.error('Failed to load Spline scene:',error);window.babyKamkamLoading.fail()}
     let resizeTimer;addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(!opening)applyQuality(activeDPR)},150)},{passive:true});
   </script>
