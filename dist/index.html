@@ -10,7 +10,7 @@
   <meta property="og:image" content="assets/baby-primary.webp">
   <link rel="preconnect" href="https://cdn.spline.design" crossorigin>
   <link rel="modulepreload" href="https://cdn.spline.design/@splinetool/runtime@2.0.186/build/runtime.js" crossorigin>
-  <link rel="preload" href="assets/scene.splinecode" as="fetch" crossorigin fetchpriority="high">
+  <link rel="preload" href="https://prod.spline.design/uDv5ybrM-NXZYv0H/scene.splinecode" as="fetch" crossorigin fetchpriority="high">
   <title>Baby Kam Kam — 3D Invitation</title>
   <style>
     :root{color-scheme:dark;--wine950:#21070e;--wine900:#2a0d12;--cream:#fff8ed;--gold:#ddb95f;--safe-bottom:max(16px,env(safe-area-inset-bottom))}
@@ -182,14 +182,13 @@
     for(const event of ['play','pause','ended','error'])music.addEventListener(event,syncMusic);
     musicButton.addEventListener('click',()=>{if(music.paused)startMusic();else music.pause()});
     try{
-      loaderHint.textContent='Loading the 3D environment…';await app.load('./assets/scene.splinecode',undefined,{credentials:'same-origin',mode:'cors'});perfStats.loadMs=Math.round(performance.now()-bootStarted);applyQuality(activeDPR);
+      loaderHint.textContent='Loading the 3D environment…';await app.load('https://prod.spline.design/uDv5ybrM-NXZYv0H/scene.splinecode',undefined,{credentials:'omit',mode:'cors'});perfStats.loadMs=Math.round(performance.now()-bootStarted);applyQuality(activeDPR);
       loaderHint.textContent='Preparing the invitation experience…';const[sealTrigger,mainMenu,galleryClose,exitExplore]=await Promise.all([waitForElement('seal-trigger'),waitForElement('main-menu'),waitForElement('gallery-close'),waitForElement('exit-explore')]);
       flightCamera=app.findObjectByName('Website Flight Camera');let invitationPose=null;let openingStarted=0;
       const captureInvitationPose=()=>{if(!openingStarted)return;sceneMenuReady=true;if(opening){opening=false;perfStats.openingMs=Math.round(performance.now()-openingStarted);try{app.renderMode='auto'}catch(_){}}if(!invitationPose)invitationPose=readPose(flightCamera);document.body.dataset.invitationPose='ready';if(!roomHolding&&!hybridReady)beginRoomHold();syncPremiumActions()};
       function beginRoomHold(){if(roomHolding||hybridReady)return;roomHolding=true;roomHoldUntil=performance.now()+2000;const hold=now=>{if(now<roomHoldUntil){applyWidePose();requestAnimationFrame(hold)}else{revealHybrid();const slideEnd=performance.now()+760;const duringSlide=t=>{if(t<slideEnd&&hybridShown){applyWidePose();requestAnimationFrame(duringSlide)}else roomHolding=false};requestAnimationFrame(duringSlide)}};applyWidePose();requestAnimationFrame(hold)}
       sealTrigger.addEventListener('click',()=>{if(openingStarted)return;openingStarted=performance.now();perfStats.openingStartedMs=Math.round(openingStarted);widePose=readPose(flightCamera);startMusic();
-        // Native Spline still opens the doors. Cover the scene as soon as the camera starts travelling.
-        const check=()=>{if(hybridReady)return;const current=readPose(flightCamera);const moved=current&&widePose&&(Math.hypot(...['x','y','z'].map(k=>current.position[k]-widePose.position[k]))>.01||Math.hypot(...['x','y','z'].map(k=>wrapAngle(current.rotation[k]-widePose.rotation[k])))>.01);if(moved||sceneMenuReady||performance.now()-openingStarted>=2500){beginRoomHold();return}requestAnimationFrame(check)};requestAnimationFrame(check);
+        // The updated scene signals completion after the doors finish; then hold the room for two seconds.
       },{capture:true,once:true});
       installPremiumSceneStyles();window.addEventListener('baby-kamkam-opening-complete',captureInvitationPose,{once:true});installReturnDelegation(flightCamera,()=>invitationPose);
       const observed=[mainMenu,document.getElementById('modal-backdrop'),document.getElementById('gallery-controls'),exitExplore].filter(Boolean),observer=new MutationObserver(()=>{if(!sceneMenuReady&&openingStarted&&!mainMenu.classList.contains('hidden'))captureInvitationPose();else syncPremiumActions()});observed.forEach(element=>observer.observe(element,{attributes:true,attributeFilter:['class']}));
