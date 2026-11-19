@@ -77,7 +77,7 @@
     </div><div class="loader__signature">With love, the Asogwa family</div>
   </div>
   <script>
-  (()=>{const loader=document.getElementById("loader"),message=document.getElementById("loader-message"),hint=document.getElementById("loader-hint");const phrases=["Little hands. Endless blessings.","A tiny miracle. A lifetime of love.","Every blessing has a beautiful story.","Some moments are worth celebrating forever.","Made with love, wrapped in grace."];let index=0,fade=0,finished=false;const cycle=setInterval(()=>{message.classList.add("is-changing");fade=setTimeout(()=>{message.textContent=phrases[++index%phrases.length];message.classList.remove("is-changing")},400)},3600);const stop=()=>{clearInterval(cycle);clearTimeout(fade)};window.babyKamkamLoading={ready(){if(finished)return;finished=true;stop();loader.setAttribute("aria-busy","false");loader.classList.add("is-hidden");loader.inert=true;loader.setAttribute("aria-hidden","true")},fail(){if(finished)return;finished=true;stop();loader.setAttribute("aria-busy","false");loader.classList.add("is-error");message.classList.remove("is-changing");message.textContent="A little moment longer.";hint.textContent="The invitation could not be loaded. Please refresh when your connection is available."}};})();
+  (()=>{const loader=document.getElementById("loader"),message=document.getElementById("loader-message"),hint=document.getElementById("loader-hint");const phrases=["Little hands. Endless blessings.","A tiny miracle. A lifetime of love.","Every blessing has a beautiful story.","Some moments are worth celebrating forever.","Made with love, wrapped in grace."];let index=0,fade=0,finished=false;const watchdog=setTimeout(()=>window.babyKamkamLoading?.fail(),65000);const cycle=setInterval(()=>{message.classList.add("is-changing");fade=setTimeout(()=>{message.textContent=phrases[++index%phrases.length];message.classList.remove("is-changing")},400)},3600);const stop=()=>{clearInterval(cycle);clearTimeout(fade);clearTimeout(watchdog)};window.babyKamkamLoading={ready(){if(finished)return;finished=true;stop();loader.setAttribute("aria-busy","false");loader.classList.add("is-hidden");loader.inert=true;loader.setAttribute("aria-hidden","true")},fail(){if(finished)return;finished=true;stop();loader.setAttribute("aria-busy","false");loader.classList.add("is-error");message.classList.remove("is-changing");message.textContent="A little moment longer.";hint.textContent="The invitation could not be loaded. Please try again.";const retry=document.createElement("button");retry.className="loader__retry";retry.textContent="Try again";retry.onclick=()=>location.reload();hint.after(retry)}};})();
   </script>
   <canvas id="canvas3d" aria-label="Interactive 3D child dedication invitation"></canvas>
   <section class="invitation-site" id="invitation-site" aria-label="Child dedication invitation" inert>
@@ -120,7 +120,7 @@
     let app;try{app=new Application(canvas,{htmlContentMode:'inline',renderMode:'continuous'})}catch(error){window.babyKamkamLoading.fail();throw error}globalThis.babyKamkamApp=app;
     function applyQuality(value){const renderer=app._renderer;if(!renderer||typeof renderer.setPixelRatio!=='function')return false;const next=Math.max(.8,Math.min(maxDPR,value));try{renderer.setPixelRatio(next);activeDPR=next;perfStats.pixelRatio=next;app.requestRender?.();return true}catch(_){return false}}
     function monitorPerformance(){let previous=0,samples=[],bad=0,good=0,lastChange=performance.now();function tick(now){if(document.hidden||opening){previous=0;samples=[];bad=good=0;lastChange=now}else if(previous){const dt=now-previous;if(dt>0&&dt<250)samples.push(dt);if(samples.length>=120){samples.sort((a,b)=>a-b);const median=samples[Math.floor(samples.length*.5)],p90=samples[Math.floor(samples.length*.9)];perfStats.frameIntervalMs=Math.round(p90*10)/10;samples=[];bad=p90>34?bad+1:0;good=p90<19&&median<18?good+1:0;if(now-lastChange>6500){let next=activeDPR;if(bad>=2)next=Math.max(.85,activeDPR-.15);else if(good>=3)next=Math.min(maxDPR,activeDPR+.15);if(Math.abs(next-activeDPR)>.04&&applyQuality(next)){perfStats.adjustments++;lastChange=now;bad=good=0}}}}previous=(document.hidden||opening)?0:now;requestAnimationFrame(tick)}requestAnimationFrame(tick)}
-    const waitForElement=(id)=>new Promise((resolve,reject)=>{const started=performance.now();const check=()=>{const element=document.getElementById(id);if(element)return resolve(element);requestAnimationFrame(check)};check()});
+    const waitForElement=(id)=>new Promise((resolve,reject)=>{const started=performance.now();const check=()=>{const element=document.getElementById(id);if(element)return resolve(element);if(performance.now()-started>15000)return reject(new Error('Missing scene element: '+id));setTimeout(check,50)};check()});
     const cloneVector=value=>({x:Number(value.x),y:Number(value.y),z:Number(value.z)}),ease=value=>-(Math.cos(Math.PI*value)-1)/2,wrapAngle=degrees=>((degrees+540)%360)-180;
     const showToast=message=>{clearTimeout(toastTimer);toast.textContent=message;toast.classList.add('is-visible');toastTimer=setTimeout(()=>toast.classList.remove('is-visible'),2200)};
     function installPremiumSceneStyles(){const style=document.createElement('style');style.id='premium-scene-ui';style.textContent=`
@@ -156,25 +156,18 @@
     function applyWidePose(){if(!flightCamera||!widePose)return;for(const axis of ['x','y','z']){flightCamera.position[axis]=widePose.position[axis];flightCamera.rotation[axis]=widePose.rotation[axis]}if(widePose.zoom>0&&typeof flightCamera.zoom==='number')flightCamera.zoom=widePose.zoom;app.requestRender?.()}
     document.querySelector('.invite-menu').addEventListener('click',event=>{const action=event.target.closest('[data-invite]')?.dataset.invite;if(!action)return;if(action==='details'){document.getElementById('invite-event').scrollIntoView({behavior:'smooth'});return}if(action==='share'){document.getElementById('share-button').click();return}const menu=document.getElementById('main-menu');const button=document.getElementById(action+'-button')||Array.from(menu?.querySelectorAll('button')||[]).find(b=>b.textContent.trim().toLowerCase().includes(action));if(!button||!sceneMenuReady){showToast('The 3D scene is getting ready. Please try again shortly.');return}hybridBusy=true;showInvitationSite(false);button.click();if(action==='explore'){applyWidePose();requestAnimationFrame(applyWidePose)}setTimeout(()=>{hybridBusy=false;syncPremiumActions()},1100)});
     function syncPremiumActions(){const main=document.getElementById('main-menu'),rsvp=document.getElementById('modal-backdrop'),gallery=document.getElementById('gallery-controls'),exploreExit=document.getElementById('exit-explore');const visible=main&&!main.classList.contains('hidden')&&(!rsvp||rsvp.classList.contains('hidden'))&&(!gallery||gallery.classList.contains('hidden'))&&(!exploreExit||exploreExit.classList.contains('hidden'))&&detailsOverlay.classList.contains('premium-hidden');premiumActions.classList.toggle('premium-hidden',hybridReady||!visible);if(hybridReady&&!hybridBusy&&visible&&!hybridShown)showInvitationSite(true)}
+    const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+    function deadline(promise,ms,label){let timer;return Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error(label)),ms)})]).finally(()=>clearTimeout(timer))}
     async function warmScene(){
-      loaderHint.textContent='Bringing the details to life…';
-      
-      let lastActivity=performance.now(),observer,resourceObserver;
-      const nextFrame=()=>new Promise(resolve=>requestAnimationFrame(resolve));
-      const mark=()=>{lastActivity=performance.now()};
-      try{resourceObserver=new PerformanceObserver(list=>{if(list.getEntries().some(e=>!e.name.includes('favicon')))mark()});resourceObserver.observe({entryTypes:['resource']})}catch(_){}
-      try{observer=new MutationObserver(records=>{if(records.some(r=>r.target instanceof HTMLImageElement||Array.from(r.addedNodes).some(n=>n instanceof HTMLImageElement||n.querySelector?.('img'))))mark()});observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['src']});
-      const pics=['baby-ceremony.webp','baby-joyful.webp','baby-primary.webp','baby-soft.webp','invitation-v1-web.jpg'];const decoded=Promise.all(pics.map(async name=>{const image=new Image();image.src='./assets/'+name;await image.decode()}));
-      const timed=promise=>promise;
-      await timed(decoded);if(document.fonts)await timed(document.fonts.ready);loaderHint.textContent='Finishing the visual details…';
-      const renderer=app._renderer;const device=renderer?.backend?.device;/* Only compile when the runtime exposes an actual scene and camera. Never move the authored camera. */const renderScene=app._scene,renderCamera=app._camera;if(renderScene?.isScene&&renderCamera?.isCamera&&typeof renderer?.compileAsync==='function'){try{await renderer.compileAsync(renderScene,renderCamera);perfStats.shaderWarmup='compiled'}catch(_){perfStats.shaderWarmup='unavailable'}}else{perfStats.shaderWarmup='unavailable'}
-      let frames=0,stable=0;let previous=performance.now();mark();
-      while(true){app.requestRender?.();const now=await timed(nextFrame());const dt=now-previous;previous=now;if(document.hidden){stable=0;continue}frames++;stable=dt<100?stable+1:0;
-        const pendingImages=Array.from(document.images).some(img=>!img.complete);
-        const pendingPrograms=renderer?.info?.programs?.some?.(program=>typeof program.isReady==='function'&&!program.isReady());
-        if(frames>=12&&stable>=10&&!pendingImages&&!pendingPrograms&&now-lastActivity>=650){if(device?.queue?.onSubmittedWorkDone)await timed(device.queue.onSubmittedWorkDone());await timed(nextFrame());if(performance.now()-lastActivity>=650)return}
-      }
-      }finally{observer?.disconnect();resourceObserver?.disconnect()}
+      loaderHint.textContent='Finishing the visual details…';
+      const started=performance.now();
+      const pics=['baby-ceremony.webp','baby-joyful.webp','baby-primary.webp','baby-soft.webp','invitation-v1-web.jpg'];
+      const decoded=Promise.allSettled(pics.map(async name=>{const image=new Image();image.src='./assets/'+name;await image.decode?.()}));
+      await Promise.race([Promise.allSettled([decoded,document.fonts?.ready]),delay(1200)]);
+      app.requestRender?.();
+      await Promise.race([new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))),delay(600)]);
+      await delay(Math.max(0,1200-(performance.now()-bootStarted)));
+      perfStats.warmupMs=Math.round(performance.now()-started);
     }
     /* Keep the music control in sync with actual playback, including blocked playback. */
     const music=document.getElementById('bg-music'),musicButton=document.getElementById('music-toggle');
@@ -183,7 +176,7 @@
     for(const event of ['play','pause','ended','error'])music.addEventListener(event,syncMusic);
     musicButton.addEventListener('click',()=>{if(music.paused)startMusic();else music.pause()});
     try{
-      loaderHint.textContent='Loading the 3D environment…';await app.load('./assets/scene.splinecode?v=2',undefined,{credentials:'same-origin',mode:'cors'});perfStats.loadMs=Math.round(performance.now()-bootStarted);applyQuality(activeDPR);
+      loaderHint.textContent='Loading the 3D environment…';await deadline(app.load('./assets/scene.splinecode?v=2',undefined,{credentials:'same-origin',mode:'cors'}),45000,'Scene load timed out');perfStats.loadMs=Math.round(performance.now()-bootStarted);applyQuality(activeDPR);
       loaderHint.textContent='Preparing the invitation experience…';const[sealTrigger,mainMenu,galleryClose,exitExplore]=await Promise.all([waitForElement('seal-trigger'),waitForElement('main-menu'),waitForElement('gallery-close'),waitForElement('exit-explore')]);
       flightCamera=app.findObjectByName('Website Flight Camera');let invitationPose=null;let openingStarted=0;
       const captureInvitationPose=()=>{if(!openingStarted)return;sceneMenuReady=true;if(opening){opening=false;perfStats.openingMs=Math.round(performance.now()-openingStarted);try{app.renderMode='auto'}catch(_){}}if(!invitationPose)invitationPose=readPose(flightCamera);document.body.dataset.invitationPose='ready';if(!roomHolding&&!hybridReady)beginRoomHold();syncPremiumActions()};
